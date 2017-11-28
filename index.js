@@ -1,0 +1,1 @@
+export {voronoiTreemap} from "./src/d3-voronoi-treemap";
