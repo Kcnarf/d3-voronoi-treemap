@@ -35,7 +35,7 @@ export function voronoiTreemap () {
       adaptPlacementsVariant = 1, // 0: basic heuristics; 1: heuristics with flickering mitigation
       adaptWeightsVariant = 1, // 0: basic heuristics; 1: heuristics with flickering mitigation
       areaErrorHistoryLength = 10;
-  var handleOverweight,
+  var handleOverweighted,
       adaptPlacements,
       adaptWeights;
   //end: algorithm conf.
@@ -157,7 +157,7 @@ export function voronoiTreemap () {
   // flickering mitigation
   function adaptPlacements1(polygons) {
     var newTreemapPoints = [];
-    var polygon, treemapPoint, centroid, flickeringInfluence;
+    var flickeringInfluence, polygon, treemapPoint, centroid, dx, dy;
     
     flickeringInfluence = 0.5*flickeringMitigationRatio(polygons);
     for(var i=0; i<siteCount; i++) {
@@ -185,7 +185,7 @@ export function voronoiTreemap () {
   
   function adaptWeights0(polygons) {
     var newTreemapPoints = [];
-    var polygon, treemapPoint, currentArea, adaptRatio;
+    var polygon, treemapPoint, currentArea, adaptRatio, adaptedWeight;
     
     for(var i=0; i<siteCount; i++) {
       polygon = polygons[i];
@@ -212,7 +212,7 @@ export function voronoiTreemap () {
   // flickering mitigation
   function adaptWeights1(polygons) {
     var newTreemapPoints = [];
-    var polygon, treemapPoint, currentArea, adaptRatio, flickeringInfluence;
+    var flickeringInfluence, polygon, treemapPoint, currentArea, adaptRatio, adaptedWeight;
     
     flickeringInfluence = 0.1*flickeringMitigationRatio(polygons);
     for(var i=0; i<siteCount; i++) {
@@ -442,13 +442,13 @@ export function voronoiTreemap () {
   };
   
   function initialize(data) {
-    var basePoints, weight, treemapPoints, polygons;
+    var basePoints, treemapPoints, polygons;
     
     //begin: create points
     basePoints = data.map(function(d){
       return {
         index: i,
-        weight: weight()(d),
+        weight: weight(d),
         originalData: d
       };
     });
@@ -485,7 +485,7 @@ export function voronoiTreemap () {
   
   function createTreemapPoints(basePoints) {
     var totalWeight = basePoints.reduce(function(acc, bp){ return acc+=bp.weight; }, 0),
-        avgWeight = totalWeight/siteCount;
+        avgWeight = totalWeight/siteCount,
         avgArea = totalArea/siteCount,
         xExtent = extent(wVoronoi.clip().map(function(p){return p[0];})),
         yExtent = extent(wVoronoi.clip().map(function(p){return p[1];})),
