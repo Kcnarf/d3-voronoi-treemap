@@ -10,7 +10,7 @@
     "diagram",
     "tesselation"
   ],
-  "license": "gpl3",
+  "license": "GPL-3.0",
   "author": " Kcnarf <fl.franck.lebeau@gmail.com>",
   "main": "build/d3-voronoi-treemap.js",
   "jsnext:main": "index",
@@ -24,7 +24,7 @@
   },
   "scripts": {
     "build": "rm -rf build && mkdir build && rollup -c ./rollup.config.js",
-    "pretest": "yarn run build && rollup -f umd -n vanilla --o build/utils.js -- ./src/utils.js && rollup -f umd -n vanilla --o build/plane3D.js -- ./src/plane3D.js && rollup -f umd -n vanilla --o build/conflictList.js -- ./src/conflictList.js && rollup -f umd -n vanilla --o build/vertex.js -- ./src/vertex.js && rollup -f umd -n vanilla --o build/vector.js -- ./src/vector.js && rollup -f umd -n vanilla --o build/hEdge.js -- ./src/hEdge.js && rollup -f umd -n vanilla --o build/face.js -- ./src/face.js && rollup -f umd -n vanilla --o build/convexHull.js -- ./src/convexHull.js && rollup -f umd -n vanilla --o build/powerDiagram.js -- ./src/powerDiagram.js",
+    "pretest": "yarn run build",
     "test": "tape 'test/**/*-test.js'",
     "precommit": "yarn run test && uglifyjs build/d3-voronoi-treemap.js -c -m -o build/d3-voronoi-treemap.min.js",
     "prepublish": "zip -j build/d3-voronoi-treemap.zip -- LICENSE README.md build/d3-voronoi-treemap.js build/d3-voronoi-treemap.min.js"
@@ -35,6 +35,8 @@
     "uglify-js": "~>2.6.0"
   },
   "dependencies": {
-    "d3-weighted-voronoi": "0.0.5"
+    "d3-polygon": "1.0.3",
+    "d3-array": "1.2.0",
+    "d3-weighted-voronoi": "0.0.1"
   }
 }

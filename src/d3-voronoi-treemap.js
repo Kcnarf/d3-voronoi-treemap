@@ -3,34 +3,41 @@ import {polygonHull, polygonCentroid, polygonArea, polygonContains} from 'd3-pol
 import {weightedVoronoi} from 'd3-weighted-voronoi';
 
 export function voronoiTreemap () {
-  /////// Inputs ///////
-  var x = function (d) { return d.x; };               // accessor to the x value
-  var y = function (d) { return d.y; };               // accessor to the y value
-  var weight = function (d) { return d.weight; };     // accessor to the weight
-  var clip = [[0,0], [0,1], [1,1], [1,0]];            // clipping polygon
-  var tick = function (polygons, i) { return true; }  // hook called at each iteration's end (i = iterationCount)
-  var convergenceTreshold = 0.01;                     // 0.01 means 1% error
-
   //begin: constants
-  var _PI = Math.PI,
-      _2PI = 2*Math.PI,
-      sqrt = Math.sqrt,
-      sqr = function(d) { return Math.pow(d,2); }
+  var sqrt = Math.sqrt,
+      sqr = function(d) { return Math.pow(d,2); },
       epsilon = 1;
   //end: constants
 
+  /////// Inputs ///////
+  var weight = function (d) { return d.weight; };     // accessor to the weight
+  var convergenceTreshold = 0.01;                     // 0.01 means 1% error
+  var tick = function (polygons, i) { return true; }  // hook called at each iteration's end (i = iteration count)
+  
+  
+  //begin: internals
+  var wVoronoi = weightedVoronoi();
+  var siteCount,
+      totalArea,
+      areaErrorTreshold,
+      areaErrorHistory = []; // used to detect flickering
+  //end: internals
+
   //begin: algorithm conf.
-  var maxIterationCount = 200,
-      shouldBreakOnMaxIteration = true
+  var maxIterationCount = 50,
+      shouldBreakOnMaxIteration = true,
       shouldComputeVoronoiAfterReposition = true,
       handleOverweightedVariant = 1,
       shouldRotateHandleOverweighted = false, // mixing severall heuristics seems to performs better (limit flickering), but sometimes freezes (infinite loop in handleOverweighted1)
       shouldMinimizeWeight = false, // when activated, not flickering, but stabilization at higher iterations
       shouldHandleNearZeroWeights = true,
       nearZeroWeightRatio = 0.01, // 0.01 means min allowed weight = 1% of max weight
-      adaptPlacementsVariant = 1,
-      adaptWeightsVariant = 1;
-  var handleOverweight;
+      adaptPlacementsVariant = 1, // 0: basic heuristics; 1: heuristics with flickering mitigation
+      adaptWeightsVariant = 1, // 0: basic heuristics; 1: heuristics with flickering mitigation
+      areaErrorHistoryLength = 10;
+  var handleOverweight,
+      adaptPlacements,
+      adaptWeights;
   //end: algorithm conf.
 
   ///////////////////////
@@ -38,31 +45,35 @@ export function voronoiTreemap () {
   ///////////////////////
 
   function _voronoiTreemap (data) {
-    weightedVoronoi = d3.weightedVoronoi().clip(clip);
-    totalArea = Math.abs(polygonArea(clip)),
-    areaErrorTreshold = convergenceTreshold*totalArea,
-    areaErrorHistory = [], // used to detect flickering
-    areaErrorHistoryLength = 10,
+    //begin: handle algorithm's variants
+    setAdaptPlacements();
+    setAdaptWeights();
+    setHandleOverweighted();
+    //end: handle algorithm's variants
 
-    /*
-    init
-    call 'adapt' (call 'tick' at each loop's end)
-    finish & return polygons (+ extra info ??? eg. error percentage, iterationCount, ...)
-    */
-  }
+    siteCount = data.length;
+    totalArea = Math.abs(polygonArea(wVoronoi.clip())),
+    areaErrorTreshold = convergenceTreshold*totalArea;
+    areaErrorHistory = [];
 
-  _voronoiTreemap.x = function (_) {
-    if (!arguments.length) { return x; }
-    x = _;
+    var iterationCount = 0,
+        polygons = initialize(data),
+        converged = false;
 
-    return _voronoiTreemap;
-  };
+    tick(polygons, iterationCount);
 
-  _voronoiTreemap.y = function (_) {
-    if (!arguments.length) { return y; }
-    y = _;
-
-    return _voronoiTreemap;
+    while (!(converged || (shouldBreakOnMaxIteration && iterationCount>=maxIterationCount))) {
+      polygons = adapt(polygons);
+      iterationCount++;
+      converged = overallConvergence(polygons);
+      tick(polygons, iterationCount);
+    }
+    
+    return {
+      polygons: polygons,
+      iterationCount: iterationCount,
+      convergence : computeAreaError(polygons)/totalArea
+    };
   };
 
   _voronoiTreemap.weight = function (_) {
@@ -71,10 +82,10 @@ export function voronoiTreemap () {
 
     return _voronoiTreemap;
   };
-
-  _voronoiTreemap.clip = function (_) {
-    if (!arguments.length) { return clip; }
-    clip = polygonHull(_); // ensure clip to be a convex, hole-free, counterclockwise polygon
+  
+  _voronoiTreemap.convergenceTreshold = function (_) {
+    if (!arguments.convergenceTreshold) { return convergenceTreshold; }
+    convergenceTreshold = _;
 
     return _voronoiTreemap;
   };
@@ -86,9 +97,9 @@ export function voronoiTreemap () {
     return _voronoiTreemap;
   };
 
-  _voronoiTreemap.convergenceTreshold = function (_) {
-    if (!arguments.convergenceTreshold) { return convergenceTreshold; }
-    convergenceTreshold = _;
+  _voronoiTreemap.clip = function (_) {
+    if (!arguments.length) { return wVoronoi.clip(); }
+    wVoronoi.clip(_);
 
     return _voronoiTreemap;
   };
@@ -97,7 +108,7 @@ export function voronoiTreemap () {
   /////// Private ///////
   ///////////////////////
 
-  function adapt(polygons, iterationCount) {
+  function adapt(polygons) {
     var converged, adaptedTreemapPoints;
     
     if (shouldRotateHandleOverweighted) {
@@ -107,7 +118,7 @@ export function voronoiTreemap () {
     adaptPlacements(polygons);
     if (shouldComputeVoronoiAfterReposition) {
       adaptedTreemapPoints = polygons.map(function(p) { return p.site.originalObject; });
-      polygons = weightedVoronoi(adaptedTreemapPoints);
+      polygons = wVoronoi(adaptedTreemapPoints);
       if (polygons.length<siteCount) {
         console.log("at least 1 site has no area, which is not supposed to arise");
         debugger;
@@ -116,29 +127,13 @@ export function voronoiTreemap () {
     
     adaptWeights(polygons);
     adaptedTreemapPoints = polygons.map(function(p) { return p.site.originalObject; });
-    polygons = weightedVoronoi(adaptedTreemapPoints);
+    polygons = wVoronoi(adaptedTreemapPoints);
     if (polygons.length<siteCount) {
       console.log("at least 1 site has no area, which is not supposed to arise");
       debugger;
     }
     
-    redraw(adaptedTreemapPoints, polygons);
-    
-    converged = overallConvergence(polygons);
-    
-    if (shouldBreakOnMaxIteration && iterationCount===maxIterationCount) {
-      console.log("Max iteration reached")
-      setTimeout(reset, 1750);
-    } else {
-      if (converged) {
-        console.log("Stopped at iteration "+iterationCount);
-        finalize(adaptedTreemapPoints, polygons, 20);
-      } else {
-        setTimeout(function(){
-          adapt(polygons, iterationCount+1);
-        }, 50);
-      }
-    }
+    return polygons;
   };
 
   function adaptPlacements0(polygons) {
@@ -148,7 +143,7 @@ export function voronoiTreemap () {
     for(var i=0; i<siteCount; i++) {
       polygon = polygons[i];
       treemapPoint = polygon.site.originalObject;
-      centroid = d3.polygonCentroid(polygon);
+      centroid = polygonCentroid(polygon);
       
       treemapPoint.x = centroid[0];
       treemapPoint.y = centroid[1];
@@ -168,7 +163,7 @@ export function voronoiTreemap () {
     for(var i=0; i<siteCount; i++) {
       polygon = polygons[i];
       treemapPoint = polygon.site.originalObject;
-      centroid = d3.polygonCentroid(polygon);
+      centroid = polygonCentroid(polygon);
       
       dx = centroid[0] - treemapPoint.x;
       dy = centroid[1] - treemapPoint.y;
@@ -195,7 +190,7 @@ export function voronoiTreemap () {
     for(var i=0; i<siteCount; i++) {
       polygon = polygons[i];
       treemapPoint = polygon.site.originalObject;
-      currentArea = d3.polygonArea(polygon);
+      currentArea = polygonArea(polygon);
       adaptRatio = treemapPoint.targetedArea/currentArea;
       
       //begin: handle excessive change;
@@ -223,7 +218,7 @@ export function voronoiTreemap () {
     for(var i=0; i<siteCount; i++) {
       polygon = polygons[i];
       treemapPoint = polygon.site.originalObject;
-      currentArea = d3.polygonArea(polygon);
+      currentArea = polygonArea(polygon);
       adaptRatio = treemapPoint.targetedArea/currentArea;
       
       //begin: handle excessive change;
@@ -348,7 +343,7 @@ export function voronoiTreemap () {
     for(var i=0; i<siteCount; i++) {
       polygon = polygons[i];
       treemapPoint = polygon.site.originalObject;
-      currentArea = d3.polygonArea(polygon);
+      currentArea = polygonArea(polygon);
       areaErrorSum += Math.abs(treemapPoint.targetedArea-currentArea);;
     }
     return areaErrorSum;
@@ -446,24 +441,17 @@ export function voronoiTreemap () {
     }
   };
   
-  function reset() {
-    var basePoints = [];
-    var weight, treemapPoints, polygons;
+  function initialize(data) {
+    var basePoints, weight, treemapPoints, polygons;
     
     //begin: create points
-    for (i=0; i<siteCount; i++) {
-      weight = (0+1*sqr(Math.random()))*baseWeight;
-      // weight = (i+1)*baseWeight;	// +1: weights of 0 are not handled
-      // weight = i+1;	// +1: weights of 0 are not handled
-      basePoints.push({
+    basePoints = data.map(function(d){
+      return {
         index: i,
-        weight: weight
-      });
-    }
-    for (i=0; i<outlierCount; i++) {
-      basePoints[i].weight = outlierWeight;
-    }
-      
+        weight: weight()(d),
+        originalData: d
+      };
+    });
     //end: create points
     
     if (shouldHandleNearZeroWeights) {
@@ -472,17 +460,8 @@ export function voronoiTreemap () {
     
     // create treemap-related points
     // (with targetedArea, and initial placement)
-    // choose among several inital placement policies: random/pie/sortedPie
-    treemapPoints = createTreemapPoints(basePoints, 'random');
-    polygons = weightedVoronoi(treemapPoints);
-    areaErrorHistory = [];
-    
-    alphaContext.clearRect(0, 0, width, height);
-    redraw(treemapPoints, polygons);
-    setTimeout(function(){
-      adapt(polygons, 0);
-    }, 1500);
-
+    treemapPoints = createTreemapPoints(basePoints);
+    return wVoronoi(treemapPoints);
   };
   
   function handleNearZeorWeights(basePoints) {
@@ -502,74 +481,37 @@ export function voronoiTreemap () {
     if (nearZeroCount>0) {
       console.log("# near-zero weights: "+nearZeroCount);
     }
-  }
+  };
   
-  function createTreemapPoints(basePoints, initialPlacementPolicy) {
-    var totalWeight = basePoints.reduce(function(acc, bp){ return acc+=bp.weight; }, 0);
-    var avgWeight = totalWeight/siteCount;
+  function createTreemapPoints(basePoints) {
+    var totalWeight = basePoints.reduce(function(acc, bp){ return acc+=bp.weight; }, 0),
+        avgWeight = totalWeight/siteCount;
         avgArea = totalArea/siteCount,
-        defaultWeight = avgArea/2;
+        xExtent = extent(wVoronoi.clip().map(function(p){return p[0];})),
+        yExtent = extent(wVoronoi.clip().map(function(p){return p[1];})),
+        dx = xExtent[1]-xExtent[0],
+        dy = yExtent[1]-yExtent[0],
+        defaultWeight = avgArea/2;  // a magic heuristics!
+    var x,y;
     
-      
-    if (initialPlacementPolicy === 'sortedPie') {
-      // sortedPie ensures :
-      //	- a gradient from light weights to heavy weights
-      //  - i.e., light weights will not be confine between heavy weights
-      //	- i.e., light weights will move/re-weight more easily
-      var sortedBasePoints = basePoints.sort(function(bp0, bp1){
-            return bp0.weight < bp1.weight;
-          });
-      
-      return createTreemapPoints(sortedBasePoints, 'pie');
-    }
-    else if (initialPlacementPolicy === 'pie') {
-      var deltaRad = _2PI/siteCount;
-      var rad;
-      
-      return basePoints.map(function(bp, i) {
-        rad = deltaRad*i;
-
-        return {
-          index: bp.index,
-          targetedArea: totalArea*bp.weight/totalWeight,
-          data: bp,
-          x: radius+halfRadius*Math.cos(rad)+Math.random(),
-          y: radius+halfRadius*Math.sin(rad)+Math.random(),
-          weight: defaultWeight
-        }
-      })
-    } else {
-      var xExtent = d3.extent(clippingPolygon.map(function(p){return p[0];})),
-          yExtent = d3.extent(clippingPolygon.map(function(p){return p[1];})),
-          dx = xExtent[1]-xExtent[0],
-          dy = yExtent[1]-yExtent[0];
-      var x,y;
-      
-      return basePoints.map(function(bp) {
-        //use (x,y) instead of (r,a) for a better uniform placement of sites (ie. less centered)
+    return basePoints.map(function(bp) {
+      x = xExtent[0]+dx*Math.random();
+      y = yExtent[0]+dy*Math.random();
+      while (!polygonContains(clippingPolygon, [x, y])) { 
         x = xExtent[0]+dx*Math.random();
         y = yExtent[0]+dy*Math.random();
-        while (!d3.polygonContains(clippingPolygon, [x, y])) { 
-          x = xExtent[0]+dx*Math.random();
-          y = yExtent[0]+dy*Math.random();
-        }
+      }
 
-        return {
-          index: bp.index,
-          targetedArea: totalArea*bp.weight/totalWeight,
-          data: bp,
-          x: x,
-          y: y,
-          weight: defaultWeight
-        }
-      })
-    }
-  }
-  
-  setAdaptPlacements();
-  setAdaptWeights();
-  setHandleOverweighted();
-  reset();
+      return {
+        index: bp.index,
+        targetedArea: totalArea*bp.weight/totalWeight,
+        data: bp,
+        x: x,
+        y: y,
+        weight: defaultWeight
+      }
+    })
+  };
 
-  return _weightedVoronoi;
+  return _voronoiTreemap;
 }
