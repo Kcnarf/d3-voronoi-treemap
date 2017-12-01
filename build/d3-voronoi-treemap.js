@@ -74,7 +74,7 @@
       return {
         polygons: polygons,
         iterationCount: iterationCount,
-        convergence : computeAreaError(polygons)/totalArea
+        convergenceRatio : computeAreaError(polygons)/totalArea
       };
     };
 
