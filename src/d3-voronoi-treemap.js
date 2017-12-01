@@ -6,7 +6,7 @@ export function voronoiTreemap () {
   
   /////// Inputs ///////
   var weight = function (d) { return d.weight; };     // accessor to the weight
-  var convergenceRatio = 0.01;                        // targeted allowed error ratio; 0.01 means computation stops when error <= 1% clipping polygon's area
+  var convergenceRatio = 0.01;                        // targeted allowed error ratio; 0.01 stops computation when cell areas error <= 1% clipping polygon's area
   var maxIterationCount = 50;                         // maximum allowed iteration; stops computation even if convergence is not reached; use a large amount for a sole converge-based computation stop
   var minWeightRatio = 0.01;                          // used to compute the minimum allowed weight; 0.01 means 1% of max weight; handle near-zero weights, and/or leaves enought space for cell hovering
   var tick = function (polygons, i) { return true; }  // hook called at each iteration's end (i = iteration count)
