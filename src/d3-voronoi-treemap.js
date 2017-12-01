@@ -28,11 +28,9 @@ export function voronoiTreemap () {
   //begin: algorithm conf.
   var shouldComputeVoronoiAfterReposition = true,
       handleOverweightedVariant = 1,
-      adaptPlacementsVariant = 1, // 0: basic heuristics; 1: heuristics with flickering mitigation
       adaptWeightsVariant = 1, // 0: basic heuristics; 1: heuristics with flickering mitigation
       areaErrorHistoryLength = 10;
   var handleOverweighted,
-      adaptPlacements,
       adaptWeights;
   //end: algorithm conf.
 
@@ -42,7 +40,6 @@ export function voronoiTreemap () {
 
   function _voronoiTreemap (data) {
     //begin: handle algorithm's variants
-    setAdaptPlacements();
     setAdaptWeights();
     setHandleOverweighted();
     //end: handle algorithm's variants
@@ -142,26 +139,7 @@ export function voronoiTreemap () {
     return polygons;
   };
 
-  function adaptPlacements0(polygons) {
-    var newTreemapPoints = [];
-    var polygon, treemapPoint, centroid;
-    
-    for(var i=0; i<siteCount; i++) {
-      polygon = polygons[i];
-      treemapPoint = polygon.site.originalObject;
-      centroid = polygonCentroid(polygon);
-      
-      treemapPoint.x = centroid[0];
-      treemapPoint.y = centroid[1];
-      
-      newTreemapPoints.push(treemapPoint);
-    }
-    
-    handleOverweighted(newTreemapPoints);
-  };
-  
-  // flickering mitigation
-  function adaptPlacements1(polygons) {
+  function adaptPlacements(polygons) {
     var newTreemapPoints = [];
     var flickeringInfluence, polygon, treemapPoint, centroid, dx, dy;
     
@@ -389,19 +367,6 @@ export function voronoiTreemap () {
     
     return flickeringMitigationRatio;
   }
-  
-  function setAdaptPlacements() {
-    switch (adaptPlacementsVariant) {
-      case 0:
-        adaptPlacements = adaptPlacements0;
-        break;
-      case 1:
-        adaptPlacements = adaptPlacements1;
-        break;
-      default:
-        console.log("Variant of 'adaptPlacements' is unknown")
-    }
-  };
   
   function setAdaptWeights() {
     switch (adaptWeightsVariant) {
