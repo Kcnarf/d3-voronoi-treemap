@@ -7,6 +7,8 @@ var voronoiTreemap = d3VoronoiTreemap.voronoiTreemap(),
 
 test.equal(voronoiTreemap.weight()(datum), 3);
 test.equal(voronoiTreemap.convergenceTreshold(), 0.01);
+test.equal(voronoiTreemap.maxIterationCount(), 50);
+test.equal(voronoiTreemap.nearZeroWeightRatio(), 0.01);
 test.deepEqual(voronoiTreemap.clip(), [[0,0], [0,1], [1,1], [1,0]]);
 test.end();
 });
