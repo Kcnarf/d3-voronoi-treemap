@@ -5,18 +5,19 @@
 }(this, function (exports,d3Array,d3Polygon,d3WeightedVoronoi) { 'use strict';
 
   function voronoiTreemap () {
+    
+    /////// Inputs ///////
+    var weight = function (d) { return d.weight; };     // accessor to the weight
+    var convergenceTreshold = 0.01;                     // 0.01 means 1% error
+    var maxIterationCount = 50;                         // maximum allowed iteration; will stop even if convergence is not reached;
+    var nearZeroWeightRatio = 0.01;                     // 0.01 means min allowed weight = 1% of max weight
+    var tick = function (polygons, i) { return true; }  // hook called at each iteration's end (i = iteration count)
+    
     //begin: constants
     var sqrt = Math.sqrt,
         sqr = function(d) { return Math.pow(d,2); },
         epsilon = 1;
     //end: constants
-
-    /////// Inputs ///////
-    var weight = function (d) { return d.weight; };     // accessor to the weight
-    var convergenceTreshold = 0.01;                     // 0.01 means 1% error
-    var maxIterationCount = 50;                         // maximum allowed iteration; will stop even if convergence is not reached;
-    var tick = function (polygons, i) { return true; }  // hook called at each iteration's end (i = iteration count)
-    
     
     //begin: internals
     var wVoronoi = d3WeightedVoronoi.weightedVoronoi();
@@ -31,7 +32,6 @@
         shouldComputeVoronoiAfterReposition = true,
         handleOverweightedVariant = 1,
         shouldHandleNearZeroWeights = true,
-        nearZeroWeightRatio = 0.01, // 0.01 means min allowed weight = 1% of max weight
         adaptPlacementsVariant = 1, // 0: basic heuristics; 1: heuristics with flickering mitigation
         adaptWeightsVariant = 1, // 0: basic heuristics; 1: heuristics with flickering mitigation
         areaErrorHistoryLength = 10;
@@ -94,6 +94,13 @@
       if (!arguments.length) { return maxIterationCount; }
       
       maxIterationCount = _;
+      return _voronoiTreemap;
+    };
+    
+    _voronoiTreemap.nearZeroWeightRatio = function (_) {
+      if (!arguments.length) { return nearZeroWeightRatio; }
+      
+      nearZeroWeightRatio = _;
       return _voronoiTreemap;
     };
 
