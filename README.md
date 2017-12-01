@@ -12,9 +12,11 @@ This is a *WIP*. Hence, current limitations are:
 * nested data are not handled; produces only first-level treemap
 
 ## Context
-D3 already provides a [d3-treemap](https://github.com/d3/d3-hierarchy/blob/master/README.md#treemap) module which produces a rectangular treemap. Such treempas could be distorted to fit shapes that are not rectangles (cf. [Distorded Treemap - d3-shaped treemap](http://bl.ocks.org/Kcnarf/976b2e854965eea17a7754517043b91f)).
+D3 already provides a [d3-treemap](https://github.com/d3/d3-hierarchy/blob/master/README.md#treemap) module which produces a rectangular treemap. Such treemaps could be distorted to fit shapes that are not rectangles (cf. [Distorded Treemap - d3-shaped treemap](http://bl.ocks.org/Kcnarf/976b2e854965eea17a7754517043b91f)).
 
-This plugin allows to compute a treemap with a unique look-and-feel, where inner areas are not aligned each others. Furthermore, it can compute a treemap for any convex polygon, and not only a rectangle.
+This plugin allows to compute a treemap with a unique look-and-feel, where inner areas are not strictly aligned each others, and where the outer shape can be any hole-free convex polygons (squares, rectangles, pentagon, hexagon, ... any regular convex polygon, and also any non regular hole-free convex polygon).
+
+The drawback is that the computation of a Voronoï treemap is based on a iteration/looping process. Hence, it requires *some times*, depending on the number and type of data/weights, the desired representativeness of cell areas.
 
 ## Examples
 * *still to come*.
@@ -32,11 +34,11 @@ Load ```https://rawgit.com/Kcnarf/d3-voronoi-treemap/master/build/d3-voronoi-tre
 ## TL;DR;
 In your javascript, in order to define the tessellation:
 ```javascript
-var voronoitreemap = d3.voronoitreemap()
+var voronoiTreemap = d3.voronoiTreemap()
   .weight(function(d){ return weightScale(d); }         // set the weight accessor
   .clip([0,0], [0,height], [width, height], [width,0])  // set the clipping polygon
 
-var res = voronoitreemap(data);                         // compute the weighted Voronoi tessellation; returns {polygons, iterationCount, convergenceRatio}
+var res = voronoiTreemap(data);                         // compute the weighted Voronoi tessellation; returns {polygons, iterationCount, convergenceRatio}
 var cells = res.polygons
   
 ```
@@ -58,11 +60,11 @@ d3.selectAll('path')
 ## API
 <a name="voronoiTreemap" href="#voronoiTreemap">#</a> d3.<b>voronoiTreemap</b>()
 
-Creates a new voronoiTreemap with the default [*weight*](#voronoiTreemap_weight) accessor, and [*clip*](#voronoiTreemap_clip), [*convergenceRatio*](#voronoiTreemap_convergenceRatio), [*maxIterationCount*](#voronoiTreemap_maxIterationCount) and [*minWeightRatio*](#voronoiTreemap_minWeightRatio) option values.
+Creates a new voronoiTreemap with the default [*weight*](#voronoiTreemap_weight) accessor, and default [*clip*](#voronoiTreemap_clip), [*convergenceRatio*](#voronoiTreemap_convergenceRatio), [*maxIterationCount*](#voronoiTreemap_maxIterationCount) and [*minWeightRatio*](#voronoiTreemap_minWeightRatio) configuration values.
 
 <a name="_voronoiTreemap" href="#_voronoiTreemap">#</a> <i>voronoiTreemap</i>(<i>data</i>)
 
-Computes the **Voronoï treemap** for the specified *data* points.
+Computes the **Voronoï treemap** for the specified *data* weights.
 
 Returns a *hash* where *hash.polygons* is a sparse array of polygons clipped to the [*clip*](#voronoiTreemap_clip)-ping polygon, one for each cell (each unique input point) in the diagram. Each polygon is represented as an array of points \[*x*, *y*\] where *x* and *y* are the point coordinates, a *site* field that refers to its site (ie. with x, y and weight retrieved from the original data), and a *site.originalObject* field that refers to the corresponding element in *data*. Polygons are open: they do not contain a closing point that duplicates the first point; a triangle, for example, is an array of three points. Polygons are also counterclockwise (assuming the origin ⟨0,0⟩ is in the top-left corner). Furthermore, *hash.iterationCount* is the number of iterations required to compute the resulting treempp, and *hash.convergenceRatio* is the final convergence ratio (ie. cell area errors / area of the [*clip*](#voronoiTreemap_clip)-ping polygon).
 
@@ -78,7 +80,7 @@ function weight(d) {
 
 <a name="voronoiTreemap_clip" href="#voronoiTreemap_clip">#</a> <i>voronoiTreemap</i>.<b>clip</b>([<i>clip</i>])
 
-If *clip* is specified, sets the clipping polygon. *clip* defines a hole-free concave polygon, and is specified as an array of 2D points \[x, y\], which must be *(i)* open (no duplication of the first D2 point) and *(ii)* counterclockwise (assuming the origin ⟨0,0⟩ is in the top-left corner). If *clip* is not specified, returns the current clipping polygon, which defaults to:
+If *clip* is specified, sets the clipping polygon. *clip* defines a hole-free convex polygon, and is specified as an array of 2D points \[x, y\], which must be *(i)* open (no duplication of the first D2 point) and *(ii)* counterclockwise (assuming the origin ⟨0,0⟩ is in the top-left corner). If *clip* is not specified, returns the current clipping polygon, which defaults to:
 
 ```js
 [[0,0], [0,1], [1,1], [1,0]]
