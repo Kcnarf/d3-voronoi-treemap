@@ -26,8 +26,7 @@ export function voronoiTreemap () {
   //end: internals
 
   //begin: algorithm conf.
-  var shouldComputeVoronoiAfterReposition = true,
-      handleOverweightedVariant = 1,
+  var handleOverweightedVariant = 1,
       areaErrorHistoryLength = 10;
   var handleOverweighted;
   //end: algorithm conf.
@@ -116,13 +115,11 @@ export function voronoiTreemap () {
     var converged, adaptedTreemapPoints;
     
     adaptPlacements(polygons);
-    if (shouldComputeVoronoiAfterReposition) {
-      adaptedTreemapPoints = polygons.map(function(p) { return p.site.originalObject; });
-      polygons = wVoronoi(adaptedTreemapPoints);
-      if (polygons.length<siteCount) {
-        console.log("at least 1 site has no area, which is not supposed to arise");
-        debugger;
-      }
+    adaptedTreemapPoints = polygons.map(function(p) { return p.site.originalObject; });
+    polygons = wVoronoi(adaptedTreemapPoints);
+    if (polygons.length<siteCount) {
+      console.log("at least 1 site has no area, which is not supposed to arise");
+      debugger;
     }
     
     adaptWeights(polygons);
