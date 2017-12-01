@@ -6,7 +6,7 @@ tape("voronoiTreemap(...) should set the expected defaults", function(test) {
       datum = {weight: 1};
 
   test.equal(voronoiTreemap.weight()(datum), 1);
-  test.equal(voronoiTreemap.convergenceTreshold(), 0.01);
+  test.equal(voronoiTreemap.convergenceRatio(), 0.01);
   test.equal(voronoiTreemap.maxIterationCount(), 50);
   test.equal(voronoiTreemap.minWeightRatio(), 0.01);
   test.deepEqual(voronoiTreemap.clip(), [[0,0], [0,1], [1,1], [1,0]]);
@@ -31,11 +31,11 @@ tape("voronoiTreemap.clip(...) should set the adequate convex, hole-free, counte
   test.end();
 });
 
-tape("voronoiTreemap.convergenceTreshold(...) should set the specified convergence treshold", function(test) {
+tape("voronoiTreemap.convergenceRatio(...) should set the specified convergence treshold", function(test) {
   var voronoiTreemap = d3VoronoiTreemap.voronoiTreemap();
 
-  test.equal(voronoiTreemap.convergenceTreshold(0.001), voronoiTreemap);
-  test.equal(voronoiTreemap.convergenceTreshold(), 0.001);
+  test.equal(voronoiTreemap.convergenceRatio(0.001), voronoiTreemap);
+  test.equal(voronoiTreemap.convergenceRatio(), 0.001);
   test.end();
 });
 
