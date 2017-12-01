@@ -12,6 +12,7 @@ export function voronoiTreemap () {
   /////// Inputs ///////
   var weight = function (d) { return d.weight; };     // accessor to the weight
   var convergenceTreshold = 0.01;                     // 0.01 means 1% error
+  var maxIterationCount = 50;                         // maximum allowed iteration; will stop even if convergence is not reached;
   var tick = function (polygons, i) { return true; }  // hook called at each iteration's end (i = iteration count)
   
   
@@ -24,8 +25,7 @@ export function voronoiTreemap () {
   //end: internals
 
   //begin: algorithm conf.
-  var maxIterationCount = 50,
-      shouldBreakOnMaxIteration = true,
+  var shouldBreakOnMaxIteration = true,
       shouldComputeVoronoiAfterReposition = true,
       handleOverweightedVariant = 1,
       shouldRotateHandleOverweighted = false, // mixing severall heuristics seems to performs better (limit flickering), but sometimes freezes (infinite loop in handleOverweighted1)
@@ -78,22 +78,29 @@ export function voronoiTreemap () {
 
   _voronoiTreemap.weight = function (_) {
     if (!arguments.length) { return weight; }
+    
     weight = _;
-
     return _voronoiTreemap;
   };
   
   _voronoiTreemap.convergenceTreshold = function (_) {
-    if (!arguments.convergenceTreshold) { return convergenceTreshold; }
+    if (!arguments.length) { return convergenceTreshold; }
+    
     convergenceTreshold = _;
-
+    return _voronoiTreemap;
+  };
+  
+  _voronoiTreemap.maxIterationCount = function (_) {
+    if (!arguments.length) { return maxIterationCount; }
+    
+    maxIterationCount = _;
     return _voronoiTreemap;
   };
 
   _voronoiTreemap.tick = function (_) {
     if (!arguments.length) { return tick; }
+    
     tick = _;
-
     return _voronoiTreemap;
   };
 
