@@ -30,10 +30,8 @@
     //begin: algorithm conf.
     var shouldComputeVoronoiAfterReposition = true,
         handleOverweightedVariant = 1,
-        adaptWeightsVariant = 1, // 0: basic heuristics; 1: heuristics with flickering mitigation
         areaErrorHistoryLength = 10;
-    var handleOverweighted,
-        adaptWeights;
+    var handleOverweighted;
     //end: algorithm conf.
 
     ///////////////////////
@@ -42,7 +40,6 @@
 
     function _voronoiTreemap (data) {
       //begin: handle algorithm's variants
-      setAdaptWeights();
       setHandleOverweighted();
       //end: handle algorithm's variants
 
@@ -169,34 +166,7 @@
       handleOverweighted(newTreemapPoints);
     };
     
-    function adaptWeights0(polygons) {
-      var newTreemapPoints = [];
-      var polygon, treemapPoint, currentArea, adaptRatio, adaptedWeight;
-      
-      for(var i=0; i<siteCount; i++) {
-        polygon = polygons[i];
-        treemapPoint = polygon.site.originalObject;
-        currentArea = d3Polygon.polygonArea(polygon);
-        adaptRatio = treemapPoint.targetedArea/currentArea;
-        
-        //begin: handle excessive change;
-        adaptRatio = Math.max(adaptRatio, 0.9);
-        adaptRatio = Math.min(adaptRatio, 1.1);
-        //end: handle excessive change;
-        
-        adaptedWeight = treemapPoint.weight*adaptRatio;
-        adaptedWeight = Math.max(adaptedWeight, epsilon);
-        
-        treemapPoint.weight = adaptedWeight;
-        
-        newTreemapPoints.push(treemapPoint);
-      }
-      
-      handleOverweighted(newTreemapPoints);
-    };
-    
-    // flickering mitigation
-    function adaptWeights1(polygons) {
+    function adaptWeights(polygons) {
       var newTreemapPoints = [];
       var flickeringInfluence, polygon, treemapPoint, currentArea, adaptRatio, adaptedWeight;
       
@@ -369,19 +339,6 @@
       
       return flickeringMitigationRatio;
     }
-    
-    function setAdaptWeights() {
-      switch (adaptWeightsVariant) {
-        case 0:
-          adaptWeights = adaptWeights0;
-          break;
-        case 1:
-          adaptWeights = adaptWeights1;
-          break;
-        default:
-          console.log("Variant of 'adaptWeights' is unknown")
-      }
-    };
     
     function setHandleOverweighted() {
       switch (handleOverweightedVariant) {
