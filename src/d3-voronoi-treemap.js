@@ -6,9 +6,9 @@ export function voronoiTreemap () {
   
   /////// Inputs ///////
   var weight = function (d) { return d.weight; };     // accessor to the weight
-  var convergenceTreshold = 0.01;                     // 0.01 means 1% error
-  var maxIterationCount = 50;                         // maximum allowed iteration; will stop even if convergence is not reached; use a large amount for a sole converge-based computation stop
-  var nearZeroWeightRatio = 0.01;                     // 0.01 means min allowed weight = 1% of max weight
+  var convergenceTreshold = 0.01;                     // 0.01 means computation stops when error <= 1% clipping polygon's area
+  var maxIterationCount = 50;                         // maximum allowed iteration; stops computation even if convergence is not reached; use a large amount for a sole converge-based computation stop
+  var minWeightRatio = 0.01;                          // 0.01 means min allowed weight = 1% of max weight; handle near-zero weights, and/or leaves enought space for cell hovering
   var tick = function (polygons, i) { return true; }  // hook called at each iteration's end (i = iteration count)
   
   //begin: constants
@@ -86,10 +86,10 @@ export function voronoiTreemap () {
     return _voronoiTreemap;
   };
   
-  _voronoiTreemap.nearZeroWeightRatio = function (_) {
-    if (!arguments.length) { return nearZeroWeightRatio; }
+  _voronoiTreemap.minWeightRatio = function (_) {
+    if (!arguments.length) { return minWeightRatio; }
     
-    nearZeroWeightRatio = _;
+    minWeightRatio = _;
     return _voronoiTreemap;
   };
 
@@ -350,7 +350,7 @@ export function voronoiTreemap () {
   
   function initialize(data) {
     var maxWeight = data.reduce(function(max, d){ return Math.max(max, weight(d)); }, -Infinity),
-        minAllowedWeight = maxWeight*nearZeroWeightRatio
+        minAllowedWeight = maxWeight*minWeightRatio
     var weights, treemapPoints, polygons;
     
     //begin: extract weights

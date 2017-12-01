@@ -8,7 +8,7 @@ tape("voronoiTreemap(...) should set the expected defaults", function(test) {
   test.equal(voronoiTreemap.weight()(datum), 1);
   test.equal(voronoiTreemap.convergenceTreshold(), 0.01);
   test.equal(voronoiTreemap.maxIterationCount(), 50);
-  test.equal(voronoiTreemap.nearZeroWeightRatio(), 0.01);
+  test.equal(voronoiTreemap.minWeightRatio(), 0.01);
   test.deepEqual(voronoiTreemap.clip(), [[0,0], [0,1], [1,1], [1,0]]);
   test.end();
 });
@@ -47,10 +47,10 @@ tape("voronoiTreemap.maxIterationCount(...) should set the specified allowed num
   test.end();
 });
 
-tape("voronoiTreemap.nearZeroWeightRatio(...) should set the specified ratio", function(test) {
+tape("voronoiTreemap.minWeightRatio(...) should set the specified ratio", function(test) {
   var voronoiTreemap = d3VoronoiTreemap.voronoiTreemap();
 
-  test.equal(voronoiTreemap.nearZeroWeightRatio(0.001), voronoiTreemap);
-  test.equal(voronoiTreemap.nearZeroWeightRatio(), 0.001);
+  test.equal(voronoiTreemap.minWeightRatio(0.001), voronoiTreemap);
+  test.equal(voronoiTreemap.minWeightRatio(), 0.001);
   test.end();
 });
