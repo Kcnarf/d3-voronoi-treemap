@@ -30,7 +30,6 @@
     var shouldBreakOnMaxIteration = true,
         shouldComputeVoronoiAfterReposition = true,
         handleOverweightedVariant = 1,
-        shouldRotateHandleOverweighted = false, // mixing severall heuristics seems to performs better (limit flickering), but sometimes freezes (infinite loop in handleOverweighted1)
         shouldMinimizeWeight = false, // when activated, not flickering, but stabilization at higher iterations
         shouldHandleNearZeroWeights = true,
         nearZeroWeightRatio = 0.01, // 0.01 means min allowed weight = 1% of max weight
@@ -119,10 +118,6 @@
 
     function adapt(polygons) {
       var converged, adaptedTreemapPoints;
-      
-      if (shouldRotateHandleOverweighted) {
-        rotateHandleOverweighted();
-      }
       
       adaptPlacements(polygons);
       if (shouldComputeVoronoiAfterReposition) {
