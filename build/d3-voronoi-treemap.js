@@ -14,10 +14,21 @@
     var tick = function (polygons, i) { return true; }  // hook called at each iteration's end (i = iteration count)
     
     //begin: constants
-    var sqrt = Math.sqrt,
-        sqr = function(d) { return Math.pow(d,2); },
-        epsilon = 1;
+    var epsilon = 1;
     //end: constants
+    
+    //begin: utils
+    var sqrt = Math.sqrt,
+        sqr = function(d) { return Math.pow(d,2); };
+    
+    function squaredDistance(s0, s1) {
+      return sqr(s1.x - s0.x) + sqr(s1.y - s0.y);
+    };
+
+    function distance(s0, s1) {
+      return sqrt(squaredDistance(s0, s1));
+    };
+    //end: utils
     
     //begin: internals
     var wVoronoi = d3WeightedVoronoi.weightedVoronoi();
@@ -28,7 +39,7 @@
     //end: internals
 
     //begin: algorithm conf.
-    var handleOverweightedVariant = 1,
+    var handleOverweightedVariant = 1,  // this option still exists 'cause for further experiments
         areaErrorHistoryLength = 10;
     var handleOverweighted;
     //end: algorithm conf.
@@ -54,7 +65,7 @@
       tick(polygons, iterationCount);
 
       while (!(converged || iterationCount>=maxIterationCount)) {
-        polygons = adapt(polygons);
+        polygons = adapt(polygons, computeFlickeringMitigationRatio(polygons));
         iterationCount++;
         converged = overallConvergence(polygons);
         tick(polygons, iterationCount);
@@ -113,10 +124,10 @@
     /////// Private ///////
     ///////////////////////
 
-    function adapt(polygons) {
+    function adapt(polygons, flickeringMitigationRatio) {
       var converged, adaptedTreemapPoints;
       
-      adaptPlacements(polygons);
+      adaptPlacements(polygons, flickeringMitigationRatio);
       adaptedTreemapPoints = polygons.map(function(p) { return p.site.originalObject; });
       polygons = wVoronoi(adaptedTreemapPoints);
       if (polygons.length<siteCount) {
@@ -124,7 +135,7 @@
         debugger;
       }
       
-      adaptWeights(polygons);
+      adaptWeights(polygons, flickeringMitigationRatio);
       adaptedTreemapPoints = polygons.map(function(p) { return p.site.originalObject; });
       polygons = wVoronoi(adaptedTreemapPoints);
       if (polygons.length<siteCount) {
@@ -135,11 +146,11 @@
       return polygons;
     };
 
-    function adaptPlacements(polygons) {
+    function adaptPlacements(polygons, flickeringMitigationRatio) {
       var newTreemapPoints = [];
       var flickeringInfluence, polygon, treemapPoint, centroid, dx, dy;
       
-      flickeringInfluence = 0.5*flickeringMitigationRatio(polygons);
+      flickeringInfluence = 0.5*flickeringMitigationRatio;
       for(var i=0; i<siteCount; i++) {
         polygon = polygons[i];
         treemapPoint = polygon.site.originalObject;
@@ -153,7 +164,6 @@
         dy *= (1-flickeringInfluence);
         //end: handle excessive change;
         
-        
         treemapPoint.x += dx;
         treemapPoint.y += dy;
         
@@ -163,11 +173,11 @@
       handleOverweighted(newTreemapPoints);
     };
     
-    function adaptWeights(polygons) {
+    function adaptWeights(polygons, flickeringMitigationRatio) {
       var newTreemapPoints = [];
       var flickeringInfluence, polygon, treemapPoint, currentArea, adaptRatio, adaptedWeight;
       
-      flickeringInfluence = 0.1*flickeringMitigationRatio(polygons);
+      flickeringInfluence = 0.1*flickeringMitigationRatio;
       for(var i=0; i<siteCount; i++) {
         polygon = polygons[i];
         treemapPoint = polygon.site.originalObject;
@@ -262,14 +272,6 @@
         console.log("# fix: "+fixCount);
       }
     }
-
-    function squaredDistance(s0, s1) {
-      return sqr(s1.x - s0.x) + sqr(s1.y - s0.y);
-    };
-
-    function distance(s0, s1) {
-      return sqrt(squaredDistance(s0, s1));
-    };
     
     function computeAreaError(polygons) {
       //convergence based on summation of all sites current areas
@@ -297,9 +299,8 @@
       return areaError < areaErrorTreshold;
     };
     
-    // should be computed once and used both in adaptPlacements and adaptweights
     // should count flikering iteratively (memorize flickering position of old frame, detect flickering wrt. previous frame, not re-detect flickering on old frames)
-    function flickeringMitigationRatio(polygons) {
+    function computeFlickeringMitigationRatio(polygons) {
       var flickeringCount = 0,
           totalCount = 0,
           initialIndexWeight = 3,
