@@ -29,7 +29,6 @@ export function voronoiTreemap () {
   var shouldBreakOnMaxIteration = true,
       shouldComputeVoronoiAfterReposition = true,
       handleOverweightedVariant = 1,
-      shouldHandleNearZeroWeights = true,
       adaptPlacementsVariant = 1, // 0: basic heuristics; 1: heuristics with flickering mitigation
       adaptWeightsVariant = 1, // 0: basic heuristics; 1: heuristics with flickering mitigation
       areaErrorHistoryLength = 10;
@@ -432,45 +431,24 @@ export function voronoiTreemap () {
   };
   
   function initialize(data) {
-    var basePoints, treemapPoints, polygons;
+    var maxWeight = data.reduce(function(max, d){ return Math.max(max, weight(d)); }, -Infinity),
+        minAllowedWeight = maxWeight*nearZeroWeightRatio
+    var weights, treemapPoints, polygons;
     
-    //begin: create points
-    basePoints = data.map(function(d){
+    //begin: extract weights
+    weights = data.map(function(d){
       return {
         index: i,
-        weight: weight(d),
+        weight: Math.max(weight(d), minAllowedWeight),
         originalData: d
       };
     });
-    //end: create points
-    
-    if (shouldHandleNearZeroWeights) {
-      handleNearZeorWeights(basePoints);
-    }
+    //end: extract weights
     
     // create treemap-related points
     // (with targetedArea, and initial placement)
-    treemapPoints = createTreemapPoints(basePoints);
+    treemapPoints = createTreemapPoints(weights);
     return wVoronoi(treemapPoints);
-  };
-  
-  function handleNearZeorWeights(basePoints) {
-    var maxWeight = basePoints.reduce(function(max, bp){
-      return Math.max(max, bp.weight);
-    }, -Infinity);
-    var minAllowedWeight = maxWeight*nearZeroWeightRatio,
-        nearZeroCount = 0;
-    
-    basePoints.forEach(function(bp) {
-      if (bp.weight<minAllowedWeight) {
-        bp.weight = minAllowedWeight;
-        nearZeroCount++;
-      }
-    })
-    
-    if (nearZeroCount>0) {
-      console.log("# near-zero weights: "+nearZeroCount);
-    }
   };
   
   function createTreemapPoints(basePoints) {
