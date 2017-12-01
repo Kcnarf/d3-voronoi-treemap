@@ -357,7 +357,7 @@
       var weights, treemapPoints, polygons;
       
       //begin: extract weights
-      weights = data.map(function(d){
+      weights = data.map(function(d, i){
         return {
           index: i,
           weight: Math.max(weight(d), minAllowedWeight),
@@ -386,7 +386,7 @@
       return basePoints.map(function(bp) {
         x = xExtent[0]+dx*Math.random();
         y = yExtent[0]+dy*Math.random();
-        while (!d3Polygon.polygonContains(clippingPolygon, [x, y])) { 
+        while (!d3Polygon.polygonContains(wVoronoi.clip(), [x, y])) { 
           x = xExtent[0]+dx*Math.random();
           y = yExtent[0]+dy*Math.random();
         }

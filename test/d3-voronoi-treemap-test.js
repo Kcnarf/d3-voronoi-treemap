@@ -54,3 +54,16 @@ tape("voronoiTreemap.minWeightRatio(...) should set the specified ratio", functi
   test.equal(voronoiTreemap.minWeightRatio(), 0.001);
   test.end();
 });
+
+tape("weightedVoronoi.(...) should compute Voronoï treemap", function(test) {
+  test.test("basic use case", function(test) {
+    var voronoiTreemap = d3VoronoiTreemap.voronoiTreemap().maxIterationCount(1),
+        data = [{weight: 1}, {weight: 1}],
+        res = voronoiTreemap(data);
+
+    test.equal(res.polygons.length, 2);
+    test.equal(res.iterationCount, 1);
+    test.ok(res.convergenceRatio);
+    test.end();
+  });
+});

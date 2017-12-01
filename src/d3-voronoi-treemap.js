@@ -355,7 +355,7 @@ export function voronoiTreemap () {
     var weights, treemapPoints, polygons;
     
     //begin: extract weights
-    weights = data.map(function(d){
+    weights = data.map(function(d, i){
       return {
         index: i,
         weight: Math.max(weight(d), minAllowedWeight),
@@ -384,7 +384,7 @@ export function voronoiTreemap () {
     return basePoints.map(function(bp) {
       x = xExtent[0]+dx*Math.random();
       y = yExtent[0]+dy*Math.random();
-      while (!polygonContains(clippingPolygon, [x, y])) { 
+      while (!polygonContains(wVoronoi.clip(), [x, y])) { 
         x = xExtent[0]+dx*Math.random();
         y = yExtent[0]+dy*Math.random();
       }
