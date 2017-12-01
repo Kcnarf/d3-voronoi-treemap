@@ -28,7 +28,6 @@ export function voronoiTreemap () {
   var shouldBreakOnMaxIteration = true,
       shouldComputeVoronoiAfterReposition = true,
       handleOverweightedVariant = 1,
-      shouldMinimizeWeight = false, // when activated, not flickering, but stabilization at higher iterations
       shouldHandleNearZeroWeights = true,
       nearZeroWeightRatio = 0.01, // 0.01 means min allowed weight = 1% of max weight
       adaptPlacementsVariant = 1, // 0: basic heuristics; 1: heuristics with flickering mitigation
@@ -273,9 +272,6 @@ export function voronoiTreemap () {
     } while (fixApplied)
     
     if (fixCount>0) {
-      if (shouldMinimizeWeight) {
-        minimizeWeight(treemapPoints);
-      }
       console.log("# fix: "+fixCount);
     }
   }
@@ -311,22 +307,7 @@ export function voronoiTreemap () {
     } while (fixApplied)
     
     if (fixCount>0) {
-      if (shouldMinimizeWeight) {
-        minimizeWeight(treemapPoints);
-      }
       console.log("# fix: "+fixCount);
-    }
-  }
-  
-  function minimizeWeight(treemapPoints) {
-    var minWeight = treemapPoints[0].weight;
-    
-    for (var i=1; i<siteCount; i++) {
-      minWeight = Math.min(minWeight, treemapPoints[i].weight);
-    }
-    minWeight -= epsilon;
-    for (var i=0; i<siteCount; i++) {
-      treemapPoints[i].weight -= minWeight;
     }
   }
 
