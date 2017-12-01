@@ -3,7 +3,10 @@ This D3 plugin produces a *Voronï treemap*. Given a convex polygon and weighted
 
 Because a picture is worth a thousand words:
 
-![Thumbnail](./img/thumbnail.png)
+![square](./img/square.png)
+![hexagon](./img/hexagon.png)
+![diamond](./img/diamond.png)
+![circle](./img/circle.png)
 
 Available only for **d3 v4**.
 
