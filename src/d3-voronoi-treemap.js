@@ -7,7 +7,7 @@ export function voronoiTreemap () {
   /////// Inputs ///////
   var weight = function (d) { return d.weight; };     // accessor to the weight
   var convergenceTreshold = 0.01;                     // 0.01 means 1% error
-  var maxIterationCount = 50;                         // maximum allowed iteration; will stop even if convergence is not reached;
+  var maxIterationCount = 50;                         // maximum allowed iteration; will stop even if convergence is not reached; use a large amount for a sole converge-based computation stop
   var nearZeroWeightRatio = 0.01;                     // 0.01 means min allowed weight = 1% of max weight
   var tick = function (polygons, i) { return true; }  // hook called at each iteration's end (i = iteration count)
   
@@ -26,8 +26,7 @@ export function voronoiTreemap () {
   //end: internals
 
   //begin: algorithm conf.
-  var shouldBreakOnMaxIteration = true,
-      shouldComputeVoronoiAfterReposition = true,
+  var shouldComputeVoronoiAfterReposition = true,
       handleOverweightedVariant = 1,
       adaptPlacementsVariant = 1, // 0: basic heuristics; 1: heuristics with flickering mitigation
       adaptWeightsVariant = 1, // 0: basic heuristics; 1: heuristics with flickering mitigation
@@ -59,7 +58,7 @@ export function voronoiTreemap () {
 
     tick(polygons, iterationCount);
 
-    while (!(converged || (shouldBreakOnMaxIteration && iterationCount>=maxIterationCount))) {
+    while (!(converged || iterationCount>=maxIterationCount)) {
       polygons = adapt(polygons);
       iterationCount++;
       converged = overallConvergence(polygons);
