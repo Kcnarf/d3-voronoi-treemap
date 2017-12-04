@@ -4,6 +4,94 @@
   (factory((global.d3 = global.d3 || {}),global.d3,global.d3,global.d3));
 }(this, function (exports,d3Array,d3Polygon,d3WeightedVoronoi) { 'use strict';
 
+  function FlickeringMitigation () {
+    /////// Inputs ///////
+    this.history = [];
+    this.historyLength = 10;
+    this.totalAvailableArea = NaN;
+
+    //begin: configuration (ie. magic numbers)
+    this.initialIndexWeight = 3;
+    this.indexWeightDecrement = 1;
+    //end configuration (ie. magic numbers)
+
+    ///////////////////////
+    ///////// API /////////
+    ///////////////////////
+  }
+
+  FlickeringMitigation.prototype.reset = function () {
+    this.history = [];
+    this.historyLength = 10;
+    this.totalAvailableArea = NaN;
+    
+    return this;
+  };
+
+  FlickeringMitigation.prototype.clear = function () {
+    this.history = [];
+    
+    return this;
+  };
+
+  FlickeringMitigation.prototype.length = function (_) {
+    if (!arguments.length) { return this.historyLength; }
+    
+    this.historyLength = _;
+    return this;
+  };
+
+  FlickeringMitigation.prototype.totalArea = function (_) {
+    if (!arguments.length) { return this.totalAvailableArea; }
+    
+    this.totalAvailableArea = _;
+    return this;
+  };
+
+  FlickeringMitigation.prototype.add = function (areaError) {
+    this.history.unshift(areaError);
+    if (this.history.length>this.historyLength) {
+      this.history.pop();
+    }
+    return this;
+  };
+
+  FlickeringMitigation.prototype.ratio = function () {
+    var weightedChangeCount = 0,
+        weightedTotalCount = 0,
+        indexedWeight = this.initialIndexWeight;
+    var error0, error1, direction, ratio;
+
+    if (this.history.length < this.historyLength) { return 0; }
+    if (this.history[0] > this.totalAvailableArea/10) { return 0; }
+
+    error0 = this.history[0];
+    error1 = this.history[1];
+    direction = (error0 - error1) > 0;
+
+    for(var i=0; i<this.historyLength-2; i++) {
+      error0 = error1;
+      error1 = this.history[i+2];
+      if (((error0-error1)>0) != direction) {
+        weightedChangeCount += indexedWeight;
+        direction = !direction;
+      }
+      weightedTotalCount += indexedWeight;
+      indexedWeight -= this.indexWeightDecrement;
+      if (indexedWeight<1) {
+        indexedWeight = 1;
+      }
+    }
+
+    ratio = weightedChangeCount/weightedTotalCount;
+
+    if (ratio>0) {
+      console.log("flickering mitigation ratio: "+Math.floor(ratio*1000)/1000);
+    }
+
+    return ratio;
+  };
+
   function voronoiTreemap () {
     
     /////// Inputs ///////
@@ -17,32 +105,31 @@
     var epsilon = 1;
     //end: constants
     
-    //begin: utils
-    var sqrt = Math.sqrt,
-        sqr = function(d) { return Math.pow(d,2); };
-    
-    function squaredDistance(s0, s1) {
-      return sqr(s1.x - s0.x) + sqr(s1.y - s0.y);
-    };
-
-    function distance(s0, s1) {
-      return sqrt(squaredDistance(s0, s1));
-    };
-    //end: utils
-    
     //begin: internals
     var wVoronoi = d3WeightedVoronoi.weightedVoronoi();
     var siteCount,
         totalArea,
         areaErrorTreshold,
-        areaErrorHistory = []; // used to detect flickering
+        flickeringMitigation = new FlickeringMitigation();
     //end: internals
 
     //begin: algorithm conf.
-    var handleOverweightedVariant = 1,  // this option still exists 'cause for further experiments
-        areaErrorHistoryLength = 10;
+    var handleOverweightedVariant = 1;  // this option still exists 'cause for further experiments
     var handleOverweighted;
     //end: algorithm conf.
+    
+    //begin: utils
+    var sqrt = Math.sqrt,
+    sqr = function(d) { return Math.pow(d,2); };
+
+    function squaredDistance(s0, s1) {
+    return sqr(s1.x - s0.x) + sqr(s1.y - s0.y);
+    };
+
+    function distance(s0, s1) {
+    return sqrt(squaredDistance(s0, s1));
+    };
+    //end: utils
 
     ///////////////////////
     ///////// API /////////
@@ -56,25 +143,29 @@
       siteCount = data.length;
       totalArea = Math.abs(d3Polygon.polygonArea(wVoronoi.clip())),
       areaErrorTreshold = convergenceRatio*totalArea;
-      areaErrorHistory = [];
+      flickeringMitigation.clear().totalArea(totalArea);
 
       var iterationCount = 0,
           polygons = initialize(data),
           converged = false;
+      var areaError;
 
       tick(polygons, iterationCount);
 
       while (!(converged || iterationCount>=maxIterationCount)) {
-        polygons = adapt(polygons, computeFlickeringMitigationRatio(polygons));
+        polygons = adapt(polygons, flickeringMitigation.ratio());
         iterationCount++;
-        converged = overallConvergence(polygons);
+        areaError = computeAreaError(polygons);
+        flickeringMitigation.add(areaError);
+        converged = areaError < areaErrorTreshold;
+        console.log("error %: "+Math.round(areaError*100*1000/totalArea)/1000);
         tick(polygons, iterationCount);
       }
       
       return {
         polygons: polygons,
         iterationCount: iterationCount,
-        convergenceRatio : computeAreaError(polygons)/totalArea
+        convergenceRatio : areaError/totalArea
       };
     };
 
@@ -220,7 +311,7 @@
             sqrD = squaredDistance(tpi, tpj);
             if (sqrD < weightest.weight-lightest.weight) {
               // adaptedWeight = sqrD - epsilon; // as in ArlindNocaj/Voronoi-Treemap-Library
-              // adaptedWeight = sqrD + lightest.weight - epsilon; // works, but below loc performs better (less flickering)
+              // adaptedWeight = sqrD + lightest.weight - epsilon; // works, but below heuristics performs better (less flickering)
               adaptedWeight = sqrD + lightest.weight/2;
               adaptedWeight = Math.max(adaptedWeight, epsilon);
               weightest.weight = adaptedWeight;
@@ -285,58 +376,6 @@
       }
       return areaErrorSum;
     };
-    
-    function overallConvergence(polygons) {
-      //convergence based on summation of all sites current areas
-      var areaError = computeAreaError(polygons);
-      
-      areaErrorHistory.unshift(areaError);
-      if (areaErrorHistory.length>areaErrorHistoryLength) {
-        areaErrorHistory.pop();
-      }
-      
-      console.log("error %: "+Math.round(areaError*100*1000/totalArea)/1000);
-      return areaError < areaErrorTreshold;
-    };
-    
-    // should count flikering iteratively (memorize flickering position of old frame, detect flickering wrt. previous frame, not re-detect flickering on old frames)
-    function computeFlickeringMitigationRatio(polygons) {
-      var flickeringCount = 0,
-          totalCount = 0,
-          initialIndexWeight = 3,
-          indexWeightDecrement = 1,
-          indexWeight = initialIndexWeight;
-      var error0, error1, direction, flickeringMitigationRatio;
-      
-      if (areaErrorHistory.length < areaErrorHistoryLength) { return 0; }
-      if (computeAreaError(polygons) > totalArea/10) { return 0; }
-      
-      error0 = areaErrorHistory[0];
-      error1 = areaErrorHistory[1];
-      direction = (error0 - error1) > 0;
-      
-      for(var i=2; i<areaErrorHistory.length-2; i++) {
-        error0 = error1;
-        error1 = areaErrorHistory[i];
-        if (((error0-error1)>0) != direction) {
-          flickeringCount += indexWeight;
-          direction = !direction;
-        }
-        totalCount += indexWeight;
-        indexWeight -= indexWeightDecrement;
-        if (indexWeight<1) {
-          indexWeight = 1;
-        }
-      }
-      
-      flickeringMitigationRatio = flickeringCount/totalCount;
-      
-      if (flickeringMitigationRatio>0) {
-        console.log("flickering mitigation ratio: "+Math.floor(flickeringMitigationRatio*1000)/1000);
-      }
-      
-      return flickeringMitigationRatio;
-    }
     
     function setHandleOverweighted() {
       switch (handleOverweightedVariant) {

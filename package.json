@@ -24,7 +24,7 @@
   },
   "scripts": {
     "build": "rm -rf build && mkdir build && rollup -c ./rollup.config.js",
-    "pretest": "yarn run build",
+    "pretest": "yarn run build && rollup -f umd -n vanilla --o build/flickering-mitigation.js -- ./src/flickering-mitigation.js",
     "test": "tape 'test/**/*-test.js'",
     "precommit": "yarn run test && uglifyjs build/d3-voronoi-treemap.js -c -m -o build/d3-voronoi-treemap.min.js",
     "prepublish": "zip -j build/d3-voronoi-treemap.zip -- LICENSE README.md build/d3-voronoi-treemap.js build/d3-voronoi-treemap.min.js"
