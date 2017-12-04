@@ -238,10 +238,12 @@
     };
 
     function adaptPlacements(polygons, flickeringMitigationRatio) {
-      var newTreemapPoints = [];
-      var flickeringInfluence, polygon, treemapPoint, centroid, dx, dy;
+      var newTreemapPoints = [],
+          flickeringInfluence = 0.5;
+      var flickeringMitigation, d, polygon, treemapPoint, centroid, dx, dy;
       
-      flickeringInfluence = 0.5*flickeringMitigationRatio;
+      flickeringMitigation = flickeringInfluence*flickeringMitigationRatio;
+      d = 1-flickeringMitigation  // in [0.5, 1]
       for(var i=0; i<siteCount; i++) {
         polygon = polygons[i];
         treemapPoint = polygon.site.originalObject;
@@ -251,8 +253,8 @@
         dy = centroid[1] - treemapPoint.y;
         
         //begin: handle excessive change;
-        dx *= (1-flickeringInfluence);
-        dy *= (1-flickeringInfluence);
+        dx *= d;
+        dy *= d;
         //end: handle excessive change;
         
         treemapPoint.x += dx;
@@ -265,10 +267,11 @@
     };
     
     function adaptWeights(polygons, flickeringMitigationRatio) {
-      var newTreemapPoints = [];
-      var flickeringInfluence, polygon, treemapPoint, currentArea, adaptRatio, adaptedWeight;
+      var newTreemapPoints = [],
+          flickeringInfluence = 0.1;
+      var flickeringMitigation, polygon, treemapPoint, currentArea, adaptRatio, adaptedWeight;
       
-      flickeringInfluence = 0.1*flickeringMitigationRatio;
+      flickeringMitigation = flickeringInfluence*flickeringMitigationRatio;
       for(var i=0; i<siteCount; i++) {
         polygon = polygons[i];
         treemapPoint = polygon.site.originalObject;
@@ -276,8 +279,8 @@
         adaptRatio = treemapPoint.targetedArea/currentArea;
         
         //begin: handle excessive change;
-        adaptRatio = Math.max(adaptRatio, 0.9+flickeringInfluence);
-        adaptRatio = Math.min(adaptRatio, 1.1-flickeringInfluence);
+        adaptRatio = Math.max(adaptRatio, (1-flickeringInfluence)+flickeringMitigation); // in [(1-flickeringInfluence), 1]
+        adaptRatio = Math.min(adaptRatio, (1+flickeringInfluence)-flickeringMitigation); // in [1, (1+flickeringInfluence)]
         //end: handle excessive change;
         
         adaptedWeight = treemapPoint.weight*adaptRatio;
