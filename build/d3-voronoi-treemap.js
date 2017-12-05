@@ -6,12 +6,12 @@
 
   function FlickeringMitigation () {
     /////// Inputs ///////
-    this.history = [];
-    this.directions = [];
-    this.directionChanges = [];
-    this.historyLength = 10;
-    this.directionLength = this.historyLength-1;
-    this.directionChangeLength = this.directionLength-1;
+    this.lastAreaError = NaN;
+    this.secondToLastAreaError = NaN;
+    this.lastGrowth = NaN;
+    this.secondToLastGrowth = NaN;
+    this.growthChanges = [];
+    this.growthChangesLength = 10;
     this.totalAvailableArea = NaN;
     
     //begin: configuration (ie. magic numbers) making recent changes weighter than olders
@@ -29,31 +29,31 @@
   }
 
   FlickeringMitigation.prototype.reset = function () {
-    this.history = [];
-    this.directions = [];
-    this.directionChanges = [];
-    this.historyLength = 10;
-    this.directionLength = this.historyLength-1;
-    this.directionChangeLength = this.directionLength-1;
+    this.lastAreaError = NaN;
+    this.secondToLastAreaError = NaN;
+    this.lastGrowth = NaN;
+    this.secondToLastGrowth = NaN;
+    this.growthChanges = [];
+    this.growthChangesLength = 10;
     this.totalAvailableArea = NaN;
     
     return this;
   };
 
   FlickeringMitigation.prototype.clear = function () {
-    this.history = [];
-    this.directions = [];
-    this.directionChanges = [];
+    this.lastAreaError = NaN;
+    this.secondToLastAreaError = NaN;
+    this.lastGrowth = NaN;
+    this.secondToLastGrowth = NaN;
+    this.growthChanges = [];
     
     return this;
   };
 
   FlickeringMitigation.prototype.length = function (_) {
-    if (!arguments.length) { return this.historyLength; }
+    if (!arguments.length) { return this.growthChangesLength; }
     
-    this.historyLength = _;
-    this.directionLength = this.historyLength-1;
-    this.directionChangeLength = this.directionLength-1;
+    this.growthChangesLength = _;
     return this;
   };
 
@@ -65,18 +65,18 @@
   };
 
   FlickeringMitigation.prototype.add = function (areaError) {
-    this.history.unshift(areaError);
-    if (this.history.length>1) {
-      this.directions.unshift(direction(this.history[0], this.history[1]));
+    this.secondToLastAreaError = this.lastAreaError;
+    this.lastAreaError = areaError;
+    if (!isNaN(this.secondToLastAreaError)) {
+      this.secondToLastGrowth = this.lastGrowth;
+      this.lastGrowth = direction(this.lastAreaError, this.secondToLastAreaError);
     }
-    if (this.directions.length>1) {
-      this.directionChanges.unshift(this.directions[0]!=this.directions[1]);
+    if (!isNaN(this.secondToLastGrowth)) {
+      this.growthChanges.unshift(this.lastGrowth!=this.secondToLastGrowth);
     }
 
-    if (this.history.length>this.historyLength) {
-      this.history.pop();
-      this.directions.pop();
-      this.directionChanges.pop();
+    if (this.growthChanges.length>this.growthChangesLength) {
+      this.growthChanges.pop();
     }
     return this;
   };
@@ -87,11 +87,11 @@
         indexedWeight = this.initialIndexWeight;
     var ratio;
 
-    if (this.history.length < this.historyLength) { return 0; }
-    if (this.history[0] > this.totalAvailableArea/10) { return 0; }
+    if (this.growthChanges.length < this.growthChangesLength) { return 0; }
+    if (this.lastAreaError > this.totalAvailableArea/10) { return 0; }
 
-    for(var i=0; i<this.directionChangeLength; i++) {
-      if (this.directionChanges[i]) {
+    for(var i=0; i<this.growthChangesLength; i++) {
+      if (this.growthChanges[i]) {
         weightedChangeCount += indexedWeight;
       }
       weightedTotalCount += indexedWeight;
