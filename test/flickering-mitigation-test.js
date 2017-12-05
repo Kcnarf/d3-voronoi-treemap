@@ -42,22 +42,49 @@ tape("flickeringMitigation.clear(...) should empty memorizations", function(test
   test.end();
 });
 
-tape("flickeringMitigation.length(...) should set the specified memorizations' length", function(test) {
-  var fm = new flickeringMitigation.FlickeringMitigation();
+tape("flickeringMitigation.length(...)", function(test) {
+  test.test("flickeringMitigation.length(...) should set the specified memorizations' length", function(test) {
+    var fm = new flickeringMitigation.FlickeringMitigation();
 
-  test.equal(fm.length(20), fm);
-  test.equal(fm.length(), 20);
-  test.deepEqual(fm.growthChangeWeights, [3,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]);
-  test.equal(fm.growthChangeWeightsSum, 23);
-  test.end();
+    test.equal(fm.length(20), fm);
+    test.equal(fm.length(), 20);
+    test.deepEqual(fm.growthChangeWeights, [3,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]);
+    test.equal(fm.growthChangeWeightsSum, 23);
+    test.end();
+  });
+
+  test.test("flickeringMitigation.length(...) should only allow positive integers", function(test) {
+    var fm = new flickeringMitigation.FlickeringMitigation();
+
+    test.equal(fm.length(NaN), fm);
+    test.equal(fm.length(), 10);
+    test.equal(fm.length(""), fm);
+    test.equal(fm.length(), 10);
+    test.equal(fm.length(0), fm);
+    test.equal(fm.length(), 10);
+    test.equal(fm.length(-1), fm);
+    test.equal(fm.length(), 10);
+    
+    test.end();
+  });
 });
 
-tape("flickeringMitigation.totalArea(...) should set the specified total available area", function(test) {
-  var fm = new flickeringMitigation.FlickeringMitigation();
+tape("flickeringMitigation.totalArea(...)", function(test) {
+  test.test("flickeringMitigation.totalArea(...) should set the specified total available area", function(test) {
+    var fm = new flickeringMitigation.FlickeringMitigation();
 
-  test.equal(fm.totalArea(10), fm);
-  test.equal(fm.totalArea(), 10);
-  test.end();
+    test.equal(fm.totalArea(10), fm);
+    test.equal(fm.totalArea(), 10);
+    test.end();
+  });
+
+  test.test("flickeringMitigation.totalArea(...) should only accpet positve numbers", function(test) {
+    var fm = new flickeringMitigation.FlickeringMitigation();
+
+    test.equal(fm.totalArea(-10), fm);
+    test.ok(isNaN(fm.totalArea()));
+    test.end();
+  });
 });
 
 tape("flickeringMitigation.add(...)", function(test) {

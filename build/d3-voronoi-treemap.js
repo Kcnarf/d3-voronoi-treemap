@@ -6,17 +6,19 @@
 
   function FlickeringMitigation () {
     /////// Inputs ///////
+    this.growthChangesLength = DEFAULT_LENGTH;
+    this.totalAvailableArea = NaN;
+    
+    // inner variables
     this.lastAreaError = NaN;
     this.lastGrowth = NaN;
     this.growthChanges = [];
-    this.growthChangesLength = 10;
-    this.totalAvailableArea = NaN;
-    
-    //used to make recent changes weighter than older changes
-    this.growthChangeWeights = generateGrowthChangeWeights(this.growthChangesLength);
+    this.growthChangeWeights = generateGrowthChangeWeights(this.growthChangesLength); //used to make recent changes weighter than older changes
     this.growthChangeWeightsSum = computeGrowthChangeWeightsSum(this.growthChangeWeights);
 
   }
+
+  var DEFAULT_LENGTH = 10;
 
   function direction(h0, h1) {
     return (h0 >= h1)? 1 : -1;
@@ -54,7 +56,7 @@
     this.lastAreaError = NaN;
     this.lastGrowth = NaN;
     this.growthChanges = [];
-    this.growthChangesLength = 10;
+    this.growthChangesLength = DEFAULT_LENGTH;
     this.growthChangeWeights = generateGrowthChangeWeights(this.growthChangesLength);
     this.growthChangeWeightsSum = computeGrowthChangeWeightsSum(this.growthChangeWeights);
     this.totalAvailableArea = NaN;
@@ -73,16 +75,24 @@
   FlickeringMitigation.prototype.length = function (_) {
     if (!arguments.length) { return this.growthChangesLength; }
     
-    this.growthChangesLength = _;
-    this.growthChangeWeights = generateGrowthChangeWeights(this.growthChangesLength);
-    this.growthChangeWeightsSum = computeGrowthChangeWeightsSum(this.growthChangeWeights);
+    if (parseInt(_)>0) {
+      this.growthChangesLength = Math.floor(parseInt(_));
+      this.growthChangeWeights = generateGrowthChangeWeights(this.growthChangesLength);
+      this.growthChangeWeightsSum = computeGrowthChangeWeightsSum(this.growthChangeWeights);
+    } else {
+      console.warn("FlickeringMitigation.length() accepts only positive integers; unable to handle "+_);
+    }
     return this;
   };
 
   FlickeringMitigation.prototype.totalArea = function (_) {
     if (!arguments.length) { return this.totalAvailableArea; }
     
-    this.totalAvailableArea = _;
+    if (parseFloat(_)>0) {
+      this.totalAvailableArea = parseFloat(_);
+    } else {
+      console.warn("FlickeringMitigation.totalArea() accepts only positive numbers; unable to handle "+_);
+    }
     return this;
   };
 
