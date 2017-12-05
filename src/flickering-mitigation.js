@@ -4,13 +4,13 @@ export function FlickeringMitigation () {
   this.growthChangesLength = DEFAULT_LENGTH;
   this.totalAvailableArea = NaN;
   
-  // inner variables
+  //begin: internals
   this.lastAreaError = NaN;
   this.lastGrowth = NaN;
   this.growthChanges = [];
   this.growthChangeWeights = generateGrowthChangeWeights(this.growthChangesLength); //used to make recent changes weighter than older changes
   this.growthChangeWeightsSum = computeGrowthChangeWeightsSum(this.growthChangeWeights);
-
+  //end: internals
 }
 
 var DEFAULT_LENGTH = 10;
