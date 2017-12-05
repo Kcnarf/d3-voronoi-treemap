@@ -26,7 +26,7 @@ function direction(h0, h1) {
 FlickeringMitigation.prototype.reset = function () {
   this.history = [];
   this.directions = [];
-  this.directionChnages = [];
+  this.directionChanges = [];
   this.historyLength = 10;
   this.directionLength = this.historyLength-1;
   this.directionChangeLength = this.directionLength-1;

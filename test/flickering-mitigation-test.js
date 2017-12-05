@@ -19,7 +19,7 @@ tape("flickeringMitigation(...) should set the expected defaults", function(test
 tape("flickeringMitigation.reset(...) should reset to expected defaults", function(test) {
   var fm = new flickeringMitigation.FlickeringMitigation();
 
-  fm.length(3).totalArea(1000).add(1);
+  fm.length(4).totalArea(1000).add(1).add(2).add(3).add(4);
   test.equal(fm.reset(), fm);
   test.equal(fm.length(), 10);
   test.ok(isNaN(fm.totalArea()));
@@ -36,7 +36,7 @@ tape("flickeringMitigation.reset(...) should reset to expected defaults", functi
 tape("flickeringMitigation.clear(...) should empty history", function(test) {
   var fm = new flickeringMitigation.FlickeringMitigation();
 
-  fm.length(4).totalArea(1000).add(1);
+  fm.length(4).totalArea(1000).add(1).add(2).add(3).add(4);
   test.equal(fm.clear(), fm);
   test.equal(fm.length(), 4);
   test.ok(fm.totalArea(), 1000);
