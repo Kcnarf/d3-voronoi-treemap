@@ -7,6 +7,10 @@ tape("flickeringMitigation(...) should set the expected defaults", function(test
   test.equal(fm.length(), 10);
   test.ok(isNaN(fm.totalArea()));
   test.equal(fm.history.length, 0);
+  test.equal(fm.directions.length, 0);
+  test.equal(fm.historyLength, 10);
+  test.equal(fm.directionLength, 9);
+  test.ok(isNaN(fm.totalArea));
   test.end();
 });
 
@@ -18,6 +22,10 @@ tape("flickeringMitigation.reset(...) should reset to expected defaults", functi
   test.equal(fm.length(), 10);
   test.ok(isNaN(fm.totalArea()));
   test.equal(fm.history.length, 0);
+  test.equal(fm.directions.length, 0);
+  test.equal(fm.historyLength, 10);
+  test.equal(fm.directionLength, 9);
+  test.ok(isNaN(fm.totalArea));
   test.end();
 });
 
@@ -29,6 +37,9 @@ tape("flickeringMitigation.clear(...) should empty history", function(test) {
   test.equal(fm.length(), 3);
   test.ok(fm.totalArea(), 1000);
   test.equal(fm.history.length, 0);
+  test.equal(fm.directions.length, 0);
+  test.equal(fm.historyLength, 3);
+  test.equal(fm.directionLength, 2);
   test.end();
 });
 
@@ -37,6 +48,8 @@ tape("flickeringMitigation.length(...) should set the specified history's length
 
   test.equal(fm.length(20), fm);
   test.equal(fm.length(), 20);
+  test.equal(fm.historyLength, 20);
+  test.equal(fm.directionLength, 19);
   test.end();
 });
 
@@ -49,24 +62,38 @@ tape("flickeringMitigation.totalArea(...) should set the specified total availab
 });
 
 tape("flickeringMitigation.add(...)", function(test) {
-  test.test("flickeringMitigation.add(...) should be a queue", function(test) {
+  test.test("flickeringMitigation.add(...) should handle queues", function(test) {
     var fm = new flickeringMitigation.FlickeringMitigation();
 
     test.equal(fm.add(1), fm);
     test.equal(fm.history[0], 1);
+    test.equal(fm.directions.length, 0);
     fm.add(2);
     test.equal(fm.history.length, 2);
+    test.equal(fm.directions.length, 1);
     test.equal(fm.history[0], 2);
     test.equal(fm.history[1], 1);
+    test.equal(fm.directions[0], 1);
+    fm.add(1);
+    test.equal(fm.history.length, 3);
+    test.equal(fm.directions.length, 2);
+    test.equal(fm.history[0], 1);
+    test.equal(fm.history[1], 2);
+    test.equal(fm.history[2], 1);
+    test.equal(fm.directions[0], -1);
+    test.equal(fm.directions[1], 1);
     test.end();
   });
 
-  test.test("flickeringMitigation.add(...) should maintain histoy's length", function(test) {
+  test.test("flickeringMitigation.add(...) should maintain queues' length", function(test) {
     var fm = new flickeringMitigation.FlickeringMitigation();
 
     fm.length(3).add(1).add(2).add(3);
     test.equal(fm.history.length, 3);
-    test.equal(fm.add(4).length(), 3);
+    test.equal(fm.directions.length, 2);
+    fm.add(4);
+    test.equal(fm.history.length, 3);
+    test.equal(fm.directions.length, 2);
     test.end();
   });
 });
@@ -90,17 +117,17 @@ tape("flickeringMitigation.ratio(...)", function(test) {
   
   test.test("flickeringMitigation.ratio(...) should compute adequate ratio", function(test) {
     var fm = new flickeringMitigation.FlickeringMitigation(),
-        wtc = 3+2; // weightedTotalCount, cf. flickeringMitigation's configuration
+        wtc = 3+2; // changes' weight are [3,2]
 
     fm.length(4).totalArea(1000);
     test.equal(fm.add(1).add(2).add(3).add(4).ratio(), 0/wtc);  // no change
     test.equal(fm.add(4).add(3).add(2).add(1).ratio(), 0/wtc);  // no change
-    test.equal(fm.add(1).add(2).add(3).add(2).ratio(), 3/wtc);  // 1 change at first pos
-    test.equal(fm.add(4).add(3).add(2).add(3).ratio(), 3/wtc);  // 1 change at first pos
-    test.equal(fm.add(2).add(3).add(2).add(1).ratio(), 2/wtc);  // 1 change at second pos
-    test.equal(fm.add(3).add(2).add(3).add(4).ratio(), 2/wtc);  // 1 change at second pos
-    test.equal(fm.add(4).add(3).add(4).add(3).ratio(), (3+2)/wtc);  // 2 changes
-    test.equal(fm.add(1).add(2).add(1).add(2).ratio(), (3+2)/wtc);  // 2 changes
+    test.equal(fm.add(1).add(2).add(3).add(2).ratio(), 3/wtc);  // 1 (down) change at first pos
+    test.equal(fm.add(4).add(3).add(2).add(3).ratio(), 3/wtc);  // 1 (up) change at first pos
+    test.equal(fm.add(2).add(3).add(2).add(1).ratio(), 2/wtc);  // 1 (down) change at second pos
+    test.equal(fm.add(3).add(2).add(3).add(4).ratio(), 2/wtc);  // 1 (up) change at second pos
+    test.equal(fm.add(4).add(3).add(4).add(3).ratio(), (3+2)/wtc);  // 2 changes (up, down)
+    test.equal(fm.add(1).add(2).add(1).add(2).ratio(), (3+2)/wtc);  // 2 changes (down, up)
     test.end();
   });
   

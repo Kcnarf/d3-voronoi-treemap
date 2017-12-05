@@ -2,22 +2,30 @@
 export function FlickeringMitigation () {
   /////// Inputs ///////
   this.history = [];
+  this.directions = [];
   this.historyLength = 10;
+  this.directionLength = this.historyLength-1;
   this.totalAvailableArea = NaN;
-
-  //begin: configuration (ie. magic numbers)
+  
+  //begin: configuration (ie. magic numbers) making recent changes weighter than olders
   this.initialIndexWeight = 3;
   this.indexWeightDecrement = 1;
-  //end configuration (ie. magic numbers)
+  //end configuration (ie. magic numbers) making recent changes weighter than olders
 
   ///////////////////////
   ///////// API /////////
   ///////////////////////
 }
 
+function direction(h0, h1) {
+  return (h0 >= h1)? 1 : -1;
+}
+
 FlickeringMitigation.prototype.reset = function () {
   this.history = [];
+  this.directions = [];
   this.historyLength = 10;
+  this.directionLength = this.historyLength-1;
   this.totalAvailableArea = NaN;
   
   return this;
@@ -25,6 +33,7 @@ FlickeringMitigation.prototype.reset = function () {
 
 FlickeringMitigation.prototype.clear = function () {
   this.history = [];
+  this.directions = [];
   
   return this;
 };
@@ -33,6 +42,7 @@ FlickeringMitigation.prototype.length = function (_) {
   if (!arguments.length) { return this.historyLength; }
   
   this.historyLength = _;
+  this.directionLength = this.historyLength-1;
   return this;
 };
 
@@ -45,8 +55,13 @@ FlickeringMitigation.prototype.totalArea = function (_) {
 
 FlickeringMitigation.prototype.add = function (areaError) {
   this.history.unshift(areaError);
+  if (this.history.length>1) {
+    this.directions.unshift(direction(areaError, this.history[1]));
+  }
+
   if (this.history.length>this.historyLength) {
     this.history.pop();
+    this.directions.pop();
   }
   return this;
 };
@@ -55,21 +70,16 @@ FlickeringMitigation.prototype.ratio = function () {
   var weightedChangeCount = 0,
       weightedTotalCount = 0,
       indexedWeight = this.initialIndexWeight;
-  var error0, error1, direction, ratio;
+  var d, ratio;
 
   if (this.history.length < this.historyLength) { return 0; }
   if (this.history[0] > this.totalAvailableArea/10) { return 0; }
 
-  error0 = this.history[0];
-  error1 = this.history[1];
-  direction = (error0 - error1) > 0;
-
-  for(var i=0; i<this.historyLength-2; i++) {
-    error0 = error1;
-    error1 = this.history[i+2];
-    if (((error0-error1)>0) != direction) {
+  d = this.directions[0];
+  for(var i=0; i<this.directionLength-1; i++) {
+    if (d != this.directions[i+1]) {
       weightedChangeCount += indexedWeight;
-      direction = !direction;
+      d = -d;
     }
     weightedTotalCount += indexedWeight;
     indexedWeight -= this.indexWeightDecrement;
