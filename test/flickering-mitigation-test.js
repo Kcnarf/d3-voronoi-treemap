@@ -11,8 +11,8 @@ tape("flickeringMitigation(...) should set the expected defaults", function(test
   test.ok(isNaN(fm.lastGrowth));
   test.ok(isNaN(fm.secondToLastGrowth));
   test.equal(fm.growthChanges.length, 0);
-  test.equal(fm.growthChangesLength, 10);
-  test.ok(isNaN(fm.totalArea));
+  test.deepEqual(fm.growthChangeWeights, [3,2,1,1,1,1,1,1,1,1]);
+  test.equal(fm.growthChangeWeightsSum, 13);
   test.end();
 });
 
@@ -28,8 +28,8 @@ tape("flickeringMitigation.reset(...) should reset to expected defaults", functi
   test.ok(isNaN(fm.lastGrowth));
   test.ok(isNaN(fm.secondToLastGrowth));
   test.equal(fm.growthChanges.length, 0);
-  test.equal(fm.growthChangesLength, 10);
-  test.ok(isNaN(fm.totalArea));
+  test.deepEqual(fm.growthChangeWeights, [3,2,1,1,1,1,1,1,1,1]);
+  test.equal(fm.growthChangeWeightsSum, 13);
   test.end();
 });
 
@@ -45,7 +45,6 @@ tape("flickeringMitigation.clear(...) should empty memorizations", function(test
   test.ok(isNaN(fm.lastGrowth));
   test.ok(isNaN(fm.secondToLastGrowth));
   test.equal(fm.growthChanges.length, 0);
-  test.equal(fm.growthChangesLength, 2);
   test.end();
 });
 
@@ -54,7 +53,8 @@ tape("flickeringMitigation.length(...) should set the specified memorizations' l
 
   test.equal(fm.length(20), fm);
   test.equal(fm.length(), 20);
-  test.equal(fm.growthChangesLength, 20);
+  test.deepEqual(fm.growthChangeWeights, [3,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]);
+  test.equal(fm.growthChangeWeightsSum, 23);
   test.end();
 });
 
@@ -130,7 +130,7 @@ tape("flickeringMitigation.ratio(...)", function(test) {
   
   test.test("flickeringMitigation.ratio(...) should compute adequate ratio", function(test) {
     var fm = new flickeringMitigation.FlickeringMitigation(),
-        wtc = 3+2; // changes' weight are [3,2]
+        wtc = 3+2; // growthChangeWeights = [3,2]
 
     fm.length(2).totalArea(1000);
     test.equal(fm.clear().add(1).add(2).add(3).add(4).ratio(), 0/wtc);  // no change
