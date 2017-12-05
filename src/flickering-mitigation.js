@@ -2,9 +2,7 @@
 export function FlickeringMitigation () {
   /////// Inputs ///////
   this.lastAreaError = NaN;
-  this.secondToLastAreaError = NaN;
   this.lastGrowth = NaN;
-  this.secondToLastGrowth = NaN;
   this.growthChanges = [];
   this.growthChangesLength = 10;
   this.totalAvailableArea = NaN;
@@ -49,9 +47,7 @@ function computeGrowthChangeWeightsSum (growthChangeWeights) {
 
 FlickeringMitigation.prototype.reset = function () {
   this.lastAreaError = NaN;
-  this.secondToLastAreaError = NaN;
   this.lastGrowth = NaN;
-  this.secondToLastGrowth = NaN;
   this.growthChanges = [];
   this.growthChangesLength = 10;
   this.growthChangeWeights = generateGrowthChangeWeights(this.growthChangesLength);
@@ -63,9 +59,7 @@ FlickeringMitigation.prototype.reset = function () {
 
 FlickeringMitigation.prototype.clear = function () {
   this.lastAreaError = NaN;
-  this.secondToLastAreaError = NaN;
   this.lastGrowth = NaN;
-  this.secondToLastGrowth = NaN;
   this.growthChanges = [];
   
   return this;
@@ -88,14 +82,16 @@ FlickeringMitigation.prototype.totalArea = function (_) {
 };
 
 FlickeringMitigation.prototype.add = function (areaError) {
-  this.secondToLastAreaError = this.lastAreaError;
+  var secondToLastAreaError, secondToLastGrowth;
+
+  secondToLastAreaError = this.lastAreaError;
   this.lastAreaError = areaError;
-  if (!isNaN(this.secondToLastAreaError)) {
-    this.secondToLastGrowth = this.lastGrowth;
-    this.lastGrowth = direction(this.lastAreaError, this.secondToLastAreaError);
+  if (!isNaN(secondToLastAreaError)) {
+    secondToLastGrowth = this.lastGrowth;
+    this.lastGrowth = direction(this.lastAreaError, secondToLastAreaError);
   }
-  if (!isNaN(this.secondToLastGrowth)) {
-    this.growthChanges.unshift(this.lastGrowth!=this.secondToLastGrowth);
+  if (!isNaN(secondToLastGrowth)) {
+    this.growthChanges.unshift(this.lastGrowth!=secondToLastGrowth);
   }
 
   if (this.growthChanges.length>this.growthChangesLength) {

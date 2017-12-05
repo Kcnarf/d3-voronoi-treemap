@@ -7,9 +7,7 @@ tape("flickeringMitigation(...) should set the expected defaults", function(test
   test.equal(fm.length(), 10);
   test.ok(isNaN(fm.totalArea()));
   test.ok(isNaN(fm.lastAreaError));
-  test.ok(isNaN(fm.secondToLastAreaError));
   test.ok(isNaN(fm.lastGrowth));
-  test.ok(isNaN(fm.secondToLastGrowth));
   test.equal(fm.growthChanges.length, 0);
   test.deepEqual(fm.growthChangeWeights, [3,2,1,1,1,1,1,1,1,1]);
   test.equal(fm.growthChangeWeightsSum, 13);
@@ -24,9 +22,7 @@ tape("flickeringMitigation.reset(...) should reset to expected defaults", functi
   test.equal(fm.length(), 10);
   test.ok(isNaN(fm.totalArea()));
   test.ok(isNaN(fm.lastAreaError));
-  test.ok(isNaN(fm.secondToLastAreaError));
   test.ok(isNaN(fm.lastGrowth));
-  test.ok(isNaN(fm.secondToLastGrowth));
   test.equal(fm.growthChanges.length, 0);
   test.deepEqual(fm.growthChangeWeights, [3,2,1,1,1,1,1,1,1,1]);
   test.equal(fm.growthChangeWeightsSum, 13);
@@ -41,9 +37,7 @@ tape("flickeringMitigation.clear(...) should empty memorizations", function(test
   test.equal(fm.length(), 2);
   test.ok(fm.totalArea(), 1000);
   test.ok(isNaN(fm.lastAreaError));
-  test.ok(isNaN(fm.secondToLastAreaError));
   test.ok(isNaN(fm.lastGrowth));
-  test.ok(isNaN(fm.secondToLastGrowth));
   test.equal(fm.growthChanges.length, 0);
   test.end();
 });
@@ -72,28 +66,20 @@ tape("flickeringMitigation.add(...)", function(test) {
 
     test.equal(fm.add(1), fm);
     test.equal(fm.lastAreaError, 1);
-    test.ok(isNaN(fm.secondToLastAreaError));
     test.ok(isNaN(fm.lastGrowth));
-    test.ok(isNaN(fm.secondToLastGrowth));
     test.equal(fm.growthChanges.length, 0);
     fm.add(2);
     test.equal(fm.lastAreaError, 2);
-    test.equal(fm.secondToLastAreaError, 1);
     test.equal(fm.lastGrowth, 1);
-    test.ok(isNaN(fm.secondToLastGrowth));
     test.equal(fm.growthChanges.length, 0);
     fm.add(1);
     test.equal(fm.lastAreaError, 1);
-    test.equal(fm.secondToLastAreaError, 2);
     test.equal(fm.lastGrowth, -1);
-    test.equal(fm.secondToLastGrowth, 1);
     test.equal(fm.growthChanges.length, 1);
     test.equal(fm.growthChanges[0], true);
     fm.add(0)
     test.equal(fm.lastAreaError, 0);
-    test.equal(fm.secondToLastAreaError, 1);
     test.equal(fm.lastGrowth, -1);
-    test.equal(fm.secondToLastGrowth, -1);
     test.equal(fm.growthChanges.length, 2);
     test.equal(fm.growthChanges[0], false);
     test.equal(fm.growthChanges[1], true);
