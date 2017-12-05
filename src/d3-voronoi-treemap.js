@@ -30,15 +30,10 @@ export function voronoiTreemap () {
   //end: algorithm conf.
   
   //begin: utils
-  var sqrt = Math.sqrt,
-  sqr = function(d) { return Math.pow(d,2); };
+  function sqr(d) { return Math.pow(d,2); };
 
   function squaredDistance(s0, s1) {
-  return sqr(s1.x - s0.x) + sqr(s1.y - s0.y);
-  };
-
-  function distance(s0, s1) {
-  return sqrt(squaredDistance(s0, s1));
+    return sqr(s1.x - s0.x) + sqr(s1.y - s0.y);
   };
   //end: utils
 
@@ -127,7 +122,7 @@ export function voronoiTreemap () {
   ///////////////////////
 
   function adapt(polygons, flickeringMitigationRatio) {
-    var converged, adaptedTreemapPoints;
+    var adaptedTreemapPoints;
     
     adaptPlacements(polygons, flickeringMitigationRatio);
     adaptedTreemapPoints = polygons.map(function(p) { return p.site.originalObject; });
@@ -307,7 +302,7 @@ export function voronoiTreemap () {
   function initialize(data) {
     var maxWeight = data.reduce(function(max, d){ return Math.max(max, weight(d)); }, -Infinity),
         minAllowedWeight = maxWeight*minWeightRatio
-    var weights, treemapPoints, polygons;
+    var weights, treemapPoints;
     
     //begin: extract weights
     weights = data.map(function(d, i){
@@ -334,6 +329,7 @@ export function voronoiTreemap () {
         dx = xExtent[1]-xExtent[0],
         dy = yExtent[1]-yExtent[0],
         defaultWeight = avgArea/2;  // a magic heuristics!
+        // defaultWeight = avgWeight;
     var x,y;
     
     return basePoints.map(function(bp) {
