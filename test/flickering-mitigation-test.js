@@ -8,8 +8,10 @@ tape("flickeringMitigation(...) should set the expected defaults", function(test
   test.ok(isNaN(fm.totalArea()));
   test.equal(fm.history.length, 0);
   test.equal(fm.directions.length, 0);
+  test.equal(fm.directionChanges.length, 0);
   test.equal(fm.historyLength, 10);
   test.equal(fm.directionLength, 9);
+  test.equal(fm.directionChangeLength, 8);
   test.ok(isNaN(fm.totalArea));
   test.end();
 });
@@ -23,8 +25,10 @@ tape("flickeringMitigation.reset(...) should reset to expected defaults", functi
   test.ok(isNaN(fm.totalArea()));
   test.equal(fm.history.length, 0);
   test.equal(fm.directions.length, 0);
+  test.equal(fm.directionChanges.length, 0);
   test.equal(fm.historyLength, 10);
   test.equal(fm.directionLength, 9);
+  test.equal(fm.directionChangeLength, 8);
   test.ok(isNaN(fm.totalArea));
   test.end();
 });
@@ -32,14 +36,16 @@ tape("flickeringMitigation.reset(...) should reset to expected defaults", functi
 tape("flickeringMitigation.clear(...) should empty history", function(test) {
   var fm = new flickeringMitigation.FlickeringMitigation();
 
-  fm.length(3).totalArea(1000).add(1);
+  fm.length(4).totalArea(1000).add(1);
   test.equal(fm.clear(), fm);
-  test.equal(fm.length(), 3);
+  test.equal(fm.length(), 4);
   test.ok(fm.totalArea(), 1000);
   test.equal(fm.history.length, 0);
   test.equal(fm.directions.length, 0);
-  test.equal(fm.historyLength, 3);
-  test.equal(fm.directionLength, 2);
+  test.equal(fm.directionChanges.length, 0);
+  test.equal(fm.historyLength, 4);
+  test.equal(fm.directionLength, 3);
+  test.equal(fm.directionChangeLength, 2);
   test.end();
 });
 
@@ -50,6 +56,7 @@ tape("flickeringMitigation.length(...) should set the specified history's length
   test.equal(fm.length(), 20);
   test.equal(fm.historyLength, 20);
   test.equal(fm.directionLength, 19);
+  test.equal(fm.directionChangeLength, 18);
   test.end();
 });
 
@@ -68,32 +75,51 @@ tape("flickeringMitigation.add(...)", function(test) {
     test.equal(fm.add(1), fm);
     test.equal(fm.history[0], 1);
     test.equal(fm.directions.length, 0);
+    test.equal(fm.directionChanges.length, 0);
     fm.add(2);
     test.equal(fm.history.length, 2);
     test.equal(fm.directions.length, 1);
+    test.equal(fm.directionChanges.length, 0);
     test.equal(fm.history[0], 2);
     test.equal(fm.history[1], 1);
     test.equal(fm.directions[0], 1);
     fm.add(1);
     test.equal(fm.history.length, 3);
     test.equal(fm.directions.length, 2);
+    test.equal(fm.directionChanges.length, 1);
     test.equal(fm.history[0], 1);
     test.equal(fm.history[1], 2);
     test.equal(fm.history[2], 1);
     test.equal(fm.directions[0], -1);
     test.equal(fm.directions[1], 1);
+    test.equal(fm.directionChanges[0], true);
+    fm.add(0)
+    test.equal(fm.history.length, 4);
+    test.equal(fm.directions.length, 3);
+    test.equal(fm.directionChanges.length, 2);
+    test.equal(fm.history[0], 0);
+    test.equal(fm.history[1], 1);
+    test.equal(fm.history[2], 2);
+    test.equal(fm.history[3], 1);
+    test.equal(fm.directions[0], -1);
+    test.equal(fm.directions[1], -1);
+    test.equal(fm.directions[2], 1);
+    test.equal(fm.directionChanges[0], false);
+    test.equal(fm.directionChanges[1], true);
     test.end();
   });
 
   test.test("flickeringMitigation.add(...) should maintain queues' length", function(test) {
     var fm = new flickeringMitigation.FlickeringMitigation();
 
-    fm.length(3).add(1).add(2).add(3);
-    test.equal(fm.history.length, 3);
-    test.equal(fm.directions.length, 2);
-    fm.add(4);
-    test.equal(fm.history.length, 3);
-    test.equal(fm.directions.length, 2);
+    fm.length(4).add(1).add(2).add(3).add(4);
+    test.equal(fm.history.length, 4);
+    test.equal(fm.directions.length, 3);
+    test.equal(fm.directionChanges.length, 2);
+    fm.add(5);
+    test.equal(fm.history.length, 4);
+    test.equal(fm.directions.length, 3);
+    test.equal(fm.directionChanges.length, 2);
     test.end();
   });
 });
