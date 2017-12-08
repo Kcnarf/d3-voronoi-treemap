@@ -1,5 +1,5 @@
 # [WIP] d3-voronoi-treemap
-This D3 plugin produces a *Voronï treemap*. Given a convex polygon and weighted data, it tesselates/partitions the polygon in several inner cells, such that the area of a cell represents the weight of the underlying datum.
+This D3 plugin produces a *Voronoï treemap*. Given a convex polygon and weighted data, it tesselates/partitions the polygon in several inner cells, such that the area of a cell represents the weight of the underlying datum.
 
 Because a picture is worth a thousand words:
 
@@ -59,7 +59,7 @@ d3.selectAll('path')
 ```
 
 ## Reference
-* based on [Computing Voronoi Treemaps - Faster, Simpler, and Resolution-independent ](https://www.uni-konstanz.de/mmsp/pubsys/publishedFiles/NoBr12a.pdf)
+* based on [Computing Voronoï Treemaps - Faster, Simpler, and Resolution-independent ](https://www.uni-konstanz.de/mmsp/pubsys/publishedFiles/NoBr12a.pdf)
 * [https://github.com/ArlindNocaj/power-voronoi-diagram](https://github.com/ArlindNocaj/power-voronoi-diagram) for a Java implementation
 
 ## API
