@@ -26,9 +26,10 @@ The drawback is that the computation of a Voronoï treemap is based on a iterati
 * *still to come*.
 
 ## Installing
-Load ```https://rawgit.com/Kcnarf/d3-voronoi-treemap/master/build/d3-voronoi-treemap.js``` (or its ```d3-voronoi-treemap.min.js``` version) to make it available in AMD, CommonJS, or vanilla environments. In vanilla, a d3 global is exported:
+Load ```https://rawgit.com/Kcnarf/d3-voronoi-treemap/master/build/d3-voronoi-treemap.js``` (or its ```d3-voronoi-treemap.min.js``` version) to make it available in AMD, CommonJS, or vanilla environments. In vanilla, you must load the [d3-weighted-voronoi](https://github.com/Kcnarf/d3-weighted-voronoi) plugin prioir to this one, and a d3 global is exported:
 ```html
 <script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://raw.githack.com/Kcnarf/d3-weighted-voronoi/master/build/d3-weighted-voronoi.js"></script>
 <script src="https://raw.githack.com/Kcnarf/d3-voronoi-treemap/master/build/d3-voronoi-treemap.js"></script>
 <script>
   var voronoiTreemap = d3.voronoiTreemap();
