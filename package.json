@@ -1,6 +1,6 @@
 {
   "name": "d3-voronoi-treemap",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "D3 plugin which computes a treemap based on Voronoi tesselation",
   "keywords": [
     "d3",
