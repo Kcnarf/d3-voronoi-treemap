@@ -34,21 +34,24 @@ If you use NPM, ```npm install d3-voronoi-treemap```. Otherwise, load ```https:/
 ## TL;DR;
 In your javascript, in order to define the tessellation:
 ```javascript
+var rootNode = d3.hierarchy(nestedData);                // a d3-hierarchy of your nested data
+rootNode.sum(function(d){ return weightAccessor(d); }); // assigns the adequate weight to each node of the d3-hierarchy
+
 var voronoiTreemap = d3.voronoiTreemap()
   .clip([0,0], [0,height], [width, height], [width,0]); // sets the clipping polygon
-var root = d3.hierarchy(nestedData)                     // a d3-hierarchy of your nested data
-var res = voronoiTreemap(rootNode.sum());               // computes the weighted Voronoi tessellation of the d3-hierarchy; assigns a 'polygon' property to each node of the hierarchy
+voronoiTreemap(rootNode.sum());                         // computes the weighted Voronoi tessellation of the d3-hierarchy; assigns a 'polygon' property to each node of the hierarchy
   
 ```
 
 Then, later in your javascript, in order to draw cells:
 ```javascript
+var allNodes = rootNode.descendants;
 d3.selectAll('path')
-  .data(rootNode)
+  .data(allNodes)
   .enter()
     .append('path')
       .attr('d', function(d){ return cellLiner(d.polygon)+"z"; })
-      .style('fill', function(d){ return fillScale(d.site.originalObject); })
+      .style('fill', function(d){ return fillScale(d.data); })  // d is a node, d.data is your original data
 ```
 
 ## Reference
@@ -64,7 +67,7 @@ Creates a new voronoiTreemap with the default [*clip*](#voronoiTreemap_clip), [*
 
 Computes the **Voronoï treemap** for the specified [d3-hierarchy](https://github.com/d3/d3-hierarchy#hierarchy), where *root* is the root node of the hierarchy, assigning a *polygon* property on the root and its descendants. A polygon is represented as an array of points \[*x*, *y*\] where *x* and *y* are the point coordinates, a *site* field that refers to its site (ie. with x, y and weight retrieved from the original data), and a *site.originalObject* field that refers to the corresponding element in *data*. Polygons are open: they do not contain a closing point that duplicates the first point; a triangle, for example, is an array of three points. Polygons are also counterclockwise (assuming the origin ⟨0,0⟩ is in the top-left corner).
 
-As others d3-hierarchy layouts, the Voronoï treemap layout uses the *value* property of each node, considering it as its weight. Hence, you **must** call [root.sum](https://github.com/d3/d3-hierarchy#node_sum) before passing the hierarchy to the Voronoï treemap layout, in order to set the _value_ property of each node (root, intermediates and leaves) to its appropriate weight.
+As others d3-hierarchy layouts (rectangular treemap, or circle packing), the Voronoï treemap layout considers the weight of a node to be the *value* propertyof that node. Hence, you **must** call [root.sum](https://github.com/d3/d3-hierarchy#node_sum) before passing the hierarchy to the Voronoï treemap layout, in order to properly set the _value_ property of each node (root, intermediates and leaves). For example, considering that your original nested data have leaves with a *weight* property, you must use ```rootNode.sum(function(d){ return d.weight; })```.
 
 <a name="voronoiTreemap_clip" href="#voronoiTreemap_clip">#</a> <i>voronoiTreemap</i>.<b>clip</b>([<i>clip</i>])
 
