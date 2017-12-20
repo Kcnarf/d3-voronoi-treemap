@@ -1,7 +1,5 @@
 var globals = {
-  'd3-array': 'd3',
-  'd3-polygon': 'd3',
-  'd3-weighted-voronoi': 'd3'
+  'd3-voronoi-map': 'd3'
 }
 
 export default {

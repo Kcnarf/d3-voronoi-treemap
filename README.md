@@ -1,19 +1,13 @@
-# [WIP] d3-voronoi-treemap
-This D3 plugin produces a *Voronoï treemap*. Given a convex polygon and weighted data, it tesselates/partitions the polygon in several inner cells, such that the area of a cell represents the weight of the underlying datum.
+# d3-voronoi-treemap
+This D3 plugin produces a *Voronoï treemap*. Given a convex polygon and nested weighted data, it tesselates/partitions the polygon in several inner cells which represent the hierarchical structure of your data, such that the area of a cell represents the weight of the underlying datum.
 
 Because a picture is worth a thousand words:
 
-![square](./img/square.png)
-![hexagon](./img/hexagon.png)
-![diamond](./img/diamond.png)
-![circle](./img/circle.png)
+![sample](./img/sample.png)
 
 Available only for **d3 v4**.
 
-## Restrictions
-This is a *WIP*. Hence, current limitations are:
-* produces only first-level treemap; nested data are not handled (yet ;-)
-* quirky way to see/display intermediate computations (as in [Voronoï playground: Voronoï treemap (study 2)](http://bl.ocks.org/Kcnarf/2df494f34292f24964785a25d10e69c4)); better way is to propose a simulation (cf. [d3-force's simulation](https://github.com/d3/d3-force/blob/master/src/simulation.js))
+If you're interested on one-level map, take a look at the [d3-voronoi-map](https://github.com/Kcnarf/d3-voronoi-map) plugin, which may be simpler to use (no need of a d3-hierarchy).
 
 ## Context
 D3 already provides a [d3-treemap](https://github.com/d3/d3-hierarchy/blob/master/README.md#treemap) module which produces a rectangular treemap. Such treemaps could be distorted to fit shapes that are not rectangles (cf. [Distorded Treemap - d3-shaped treemap](http://bl.ocks.org/Kcnarf/976b2e854965eea17a7754517043b91f)).
@@ -23,13 +17,14 @@ This plugin allows to compute a treemap with a unique look-and-feel, where inner
 The drawback is that the computation of a Voronoï treemap is based on a iteration/looping process. Hence, it requires *some times*, depending on the number and type of data/weights, the desired representativeness of cell areas.
 
 ## Examples
-* [The Individual Costs of Being Obese in the U.S. (2010)](https://bl.ocks.org/kcnarf/238fa136f763f5ad908271a170ef60e2), a remake of [HowMuch.net's post](https://howmuch.net/articles/obesity-costs-visualized)
+* still to come ...
 
 ## Installing
-Load ```https://rawgit.com/Kcnarf/d3-voronoi-treemap/master/build/d3-voronoi-treemap.js``` (or its ```d3-voronoi-treemap.min.js``` version) to make it available in AMD, CommonJS, or vanilla environments. In vanilla, you must load the [d3-weighted-voronoi](https://github.com/Kcnarf/d3-weighted-voronoi) plugin prioir to this one, and a d3 global is exported:
+If you use NPM, ```npm install d3-voronoi-treemap```. Otherwise, load ```https://rawgit.com/Kcnarf/d3-voronoi-treemap/master/build/d3-voronoi-treemap.js``` (or its ```d3-voronoi-treemap.min.js``` version) to make it available in AMD, CommonJS, or vanilla environments. In vanilla, you must load the [d3-weighted-voronoi](https://github.com/Kcnarf/d3-weighted-voronoi) and [d3-voronoi-map](https://github.com/Kcnarf/d3-voronoi-map) plugins prioir to this one, and a d3 global is exported:
 ```html
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script src="https://raw.githack.com/Kcnarf/d3-weighted-voronoi/master/build/d3-weighted-voronoi.js"></script>
+<script src="https://raw.githack.com/Kcnarf/d3-voronoi-map/master/build/d3-voronoi-map.js"></script>
 <script src="https://raw.githack.com/Kcnarf/d3-voronoi-treemap/master/build/d3-voronoi-treemap.js"></script>
 <script>
   var voronoiTreemap = d3.voronoiTreemap();
@@ -39,23 +34,24 @@ Load ```https://rawgit.com/Kcnarf/d3-voronoi-treemap/master/build/d3-voronoi-tre
 ## TL;DR;
 In your javascript, in order to define the tessellation:
 ```javascript
-var voronoiTreemap = d3.voronoiTreemap()
-  .weight(function(d){ return weightScale(d); }         // set the weight accessor
-  .clip([0,0], [0,height], [width, height], [width,0])  // set the clipping polygon
+var rootNode = d3.hierarchy(nestedData);                // a d3-hierarchy of your nested data
+rootNode.sum(function(d){ return weightAccessor(d); }); // assigns the adequate weight to each node of the d3-hierarchy
 
-var res = voronoiTreemap(data);                         // compute the weighted Voronoi tessellation; returns {polygons, iterationCount, convergenceRatio}
-var cells = res.polygons
+var voronoiTreemap = d3.voronoiTreemap()
+  .clip([0,0], [0,height], [width, height], [width,0]); // sets the clipping polygon
+voronoiTreemap(rootNode.sum());                         // computes the weighted Voronoi tessellation of the d3-hierarchy; assigns a 'polygon' property to each node of the hierarchy
   
 ```
 
 Then, later in your javascript, in order to draw cells:
 ```javascript
+var allNodes = rootNode.descendants;
 d3.selectAll('path')
-  .data(cells)
+  .data(allNodes)
   .enter()
     .append('path')
-      .attr('d', function(d){ return cellLiner(d)+"z"; })
-      .style('fill', function(d){ return fillScale(d.site.originalObject); })
+      .attr('d', function(d){ return cellLiner(d.polygon)+"z"; })
+      .style('fill', function(d){ return fillScale(d.data); })  // d is a node, d.data is your original data
 ```
 
 ## Reference
@@ -65,23 +61,13 @@ d3.selectAll('path')
 ## API
 <a name="voronoiTreemap" href="#voronoiTreemap">#</a> d3.<b>voronoiTreemap</b>()
 
-Creates a new voronoiTreemap with the default [*weight*](#voronoiTreemap_weight) accessor, and default [*clip*](#voronoiTreemap_clip), [*convergenceRatio*](#voronoiTreemap_convergenceRatio), [*maxIterationCount*](#voronoiTreemap_maxIterationCount) and [*minWeightRatio*](#voronoiTreemap_minWeightRatio) configuration values.
+Creates a new voronoiTreemap with the default [*clip*](#voronoiTreemap_clip), [*convergenceRatio*](#voronoiTreemap_convergenceRatio), [*maxIterationCount*](#voronoiTreemap_maxIterationCount) and [*minWeightRatio*](#voronoiTreemap_minWeightRatio) configuration values.
 
-<a name="_voronoiTreemap" href="#_voronoiTreemap">#</a> <i>voronoiTreemap</i>(<i>data</i>)
+<a name="_voronoiTreemap" href="#_voronoiTreemap">#</a> <i>voronoiTreemap</i>(<i>root</i>)
 
-Computes the **Voronoï treemap** for the specified *data* weights.
+Computes the **Voronoï treemap** for the specified [d3-hierarchy](https://github.com/d3/d3-hierarchy#hierarchy), where *root* is the root node of the hierarchy, assigning a *polygon* property on the root and its descendants. A polygon is represented as an array of points \[*x*, *y*\] where *x* and *y* are the point coordinates, a *site* field that refers to its site (ie. with x, y and weight retrieved from the original data), and a *site.originalObject* field that refers to the corresponding element in *data*. Polygons are open: they do not contain a closing point that duplicates the first point; a triangle, for example, is an array of three points. Polygons are also counterclockwise (assuming the origin ⟨0,0⟩ is in the top-left corner).
 
-Returns a *hash* where *hash.polygons* is a sparse array of polygons clipped to the [*clip*](#voronoiTreemap_clip)-ping polygon, one for each cell (each unique input point) in the diagram. Each polygon is represented as an array of points \[*x*, *y*\] where *x* and *y* are the point coordinates, a *site* field that refers to its site (ie. with x, y and weight retrieved from the original data), and a *site.originalObject* field that refers to the corresponding element in *data*. Polygons are open: they do not contain a closing point that duplicates the first point; a triangle, for example, is an array of three points. Polygons are also counterclockwise (assuming the origin ⟨0,0⟩ is in the top-left corner). Furthermore, *hash.iterationCount* is the number of iterations required to compute the resulting treempp, and *hash.convergenceRatio* is the final convergence ratio (ie. cell area errors / area of the [*clip*](#voronoiTreemap_clip)-ping polygon).
-
-<a name="voronoiTreemap_weight" href="#voronoiTreemap_weight">#</a> <i>voronoiTreemap</i>.<b>weight</b>([<i>weight</i>])
-
-If *weight*-accessor is specified, sets the *weight* accessor. If *weight* is not specified, returns the current *weight* accessor, which defaults to:
-
-```js
-function weight(d) {
-  return d.weight;
-}
-```
+As others d3-hierarchy layouts (rectangular treemap, or circle packing), the Voronoï treemap layout considers the weight of a node to be the *value* propertyof that node. Hence, you **must** call [root.sum](https://github.com/d3/d3-hierarchy#node_sum) before passing the hierarchy to the Voronoï treemap layout, in order to properly set the _value_ property of each node (root, intermediates and leaves). For example, considering that your original nested data have leaves with a *weight* property, you must use ```rootNode.sum(function(d){ return d.weight; })```.
 
 <a name="voronoiTreemap_clip" href="#voronoiTreemap_clip">#</a> <i>voronoiTreemap</i>.<b>clip</b>([<i>clip</i>])
 
@@ -122,9 +108,7 @@ var minWeightRatio = 0.01;  // 1% of maxWeight
 *minWeightRatio* allows to mitigate flickerring behaviour (caused by too small weights), and enhances user interaction by not computing near-empty cells.
 
 ## Dependencies
- * d3-array.extent
- * d3-polygon.{polygonHull, polygonCentroid, polygonArea, polygonContains}
- * d3-weighted-voronoi.weightedVoronoi
+ * d3-voronoi-map.voronoiMap
 
 ## Testing
 In order to test the code

@@ -3,22 +3,12 @@ var tape = require("tape"),
 
 tape("voronoiTreemap(...) should set the expected defaults", function(test) {
   var voronoiTreemap = d3VoronoiTreemap.voronoiTreemap(),
-      datum = {weight: 1};
+      rootNode = {value: 1};
 
-  test.equal(voronoiTreemap.weight()(datum), 1);
   test.equal(voronoiTreemap.convergenceRatio(), 0.01);
   test.equal(voronoiTreemap.maxIterationCount(), 50);
   test.equal(voronoiTreemap.minWeightRatio(), 0.01);
   test.deepEqual(voronoiTreemap.clip(), [[0,0], [0,1], [1,1], [1,0]]);
-  test.end();
-});
-
-tape("voronoiTreemap.weight(...) should set the specified weight-accessor", function(test) {
-  var voronoiTreemap = d3VoronoiTreemap.voronoiTreemap(),
-      datum = {weight: 1, weightPrime: 2};
-
-  test.equal(voronoiTreemap.weight(function(d){ return d.weightPrime; }), voronoiTreemap);
-  test.equal(voronoiTreemap.weight()(datum), 2);
   test.end();
 });
   
@@ -55,15 +45,58 @@ tape("voronoiTreemap.minWeightRatio(...) should set the specified ratio", functi
   test.end();
 });
 
-tape("weightedVoronoi.(...) should compute Voronoï treemap", function(test) {
+tape("voronoiTreemap.(...) should compute Voronoï treemap", function(test) {
   test.test("basic use case", function(test) {
     var voronoiTreemap = d3VoronoiTreemap.voronoiTreemap().maxIterationCount(1),
-        data = [{weight: 1}, {weight: 1}],
-        res = voronoiTreemap(data);
+        rootNode = { value: 3, depth: 0, height: 1, parent: null, data: {weight: 3}},
+        node0 = { value: 1, depth: 1, height: 0, parent: rootNode, data: {weight: 1}},
+        node1 = { value: 2, depth: 1, height: 0, parent: rootNode, data: {weight: 2}};
 
-    test.equal(res.polygons.length, 2);
-    test.equal(res.iterationCount, 1);
-    test.ok(res.convergenceRatio);
+    rootNode.children = [node0, node1];
+
+    voronoiTreemap(rootNode);
+
+    test.ok(rootNode.polygon);
+    test.ok(node0.polygon);
+    test.ok(node1.polygon);
+    test.end();
+  });
+
+  test.test("multiple levels", function(test) {
+    var voronoiTreemap = d3VoronoiTreemap.voronoiTreemap().maxIterationCount(1),
+        rootNode = { value: 3, depth: 0, height: 1, parent: null, data: {weight: 3}},
+        node0 = { value: 1, depth: 1, height: 0, parent: rootNode, data: {weight: 1}},
+        node1 = { value: 2, depth: 1, height: 1, parent: rootNode, data: {weight: 2}},
+        node10 = { value: 1, depth: 2, height: 0, parent: node1, data: {weight: 1}},
+        node11 = { value: 1, depth: 2, height: 0, parent: node1, data: {weight: 1}};
+
+    rootNode.children = [node0, node1];
+    node1.children = [node10, node11];
+
+    voronoiTreemap(rootNode);
+
+    test.ok(rootNode.polygon);
+    test.ok(node0.polygon);
+    test.ok(node1.polygon);
+    test.ok(node10.polygon);
+    test.ok(node11.polygon);
+    test.end();
+  });
+
+  test.test("with only 1 child", function(test) {
+    var voronoiTreemap = d3VoronoiTreemap.voronoiTreemap().maxIterationCount(1),
+        rootNode = { value: 3, depth: 0, height: 1, parent: null, data: {weight: 1}},
+        node0 = { value: 1, depth: 1, height: 1, parent: rootNode, data: {weight: 1}},
+        node00 = { value: 1, depth: 2, height: 0, parent: rootNode, data: {weight: 1}};
+
+    rootNode.children = [node0];
+    node0.children = [node00];
+
+    voronoiTreemap(rootNode);
+
+    test.ok(rootNode.polygon);
+    test.ok(node0.polygon);
+    test.ok(node00.polygon);
     test.end();
   });
 });
