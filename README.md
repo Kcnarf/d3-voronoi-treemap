@@ -17,7 +17,9 @@ This plugin allows to compute a treemap with a unique look-and-feel, where inner
 The drawback is that the computation of a Voronoï treemap is based on a iteration/looping process. Hence, it requires *some times*, depending on the number and type of data/weights, the desired representativeness of cell areas.
 
 ## Examples
-* still to come ...
+* [The Global Economy by GDP](https://bl.ocks.org/Kcnarf/fa95aa7b076f537c00aed614c29bb568), a remake of [HowMuch.net's article](https://howmuch.net/articles/the-global-economy-by-GDP)
+
+
 
 ## Installing
 If you use NPM, ```npm install d3-voronoi-treemap```. Otherwise, load ```https://rawgit.com/Kcnarf/d3-voronoi-treemap/master/build/d3-voronoi-treemap.js``` (or its ```d3-voronoi-treemap.min.js``` version) to make it available in AMD, CommonJS, or vanilla environments. In vanilla, you must load the [d3-weighted-voronoi](https://github.com/Kcnarf/d3-weighted-voronoi) and [d3-voronoi-map](https://github.com/Kcnarf/d3-voronoi-map) plugins prioir to this one, and a d3 global is exported:
