@@ -3,10 +3,10 @@ This D3 plugin produces a *Voronoï treemap*. Given a convex polygon and nested 
 
 Because a picture is worth a thousand words:
 
-![circle](./img/circle.png)
-![hexagon](./img/hexagon.png)
 ![square](./img/square.png)
+![hexagon](./img/hexagon.png)
 ![diamond](./img/diamond.png)
+![circle](./img/circle.png)
 
 Available only for **d3 v4**.
 
