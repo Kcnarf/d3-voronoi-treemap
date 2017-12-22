@@ -3,7 +3,10 @@ This D3 plugin produces a *Voronoï treemap*. Given a convex polygon and nested 
 
 Because a picture is worth a thousand words:
 
-![sample](./img/sample.png)
+![circle](./img/circle.png)
+![hexagon](./img/hexagon.png)
+![square](./img/square.png)
+![diamond](./img/diamond.png)
 
 Available only for **d3 v4**.
 
@@ -41,7 +44,7 @@ rootNode.sum(function(d){ return weightAccessor(d); }); // assigns the adequate 
 
 var voronoiTreemap = d3.voronoiTreemap()
   .clip([0,0], [0,height], [width, height], [width,0]); // sets the clipping polygon
-voronoiTreemap(rootNode.sum());                         // computes the weighted Voronoi tessellation of the d3-hierarchy; assigns a 'polygon' property to each node of the hierarchy
+voronoiTreemap(rootNode);                         // computes the weighted Voronoi tessellation of the d3-hierarchy; assigns a 'polygon' property to each node of the hierarchy
   
 ```
 
