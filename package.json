@@ -1,6 +1,6 @@
 {
   "name": "d3-voronoi-treemap",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "D3 plugin which computes a treemap based on Voronoi tesselation",
   "keywords": [
     "d3",
@@ -10,7 +10,7 @@
     "diagram",
     "tesselation"
   ],
-  "license": "GPL-3.0",
+  "license": "BSD-3-Clause",
   "author": " Kcnarf <fl.franck.lebeau@gmail.com>",
   "main": "build/d3-voronoi-treemap.js",
   "jsnext:main": "index",
@@ -37,6 +37,6 @@
   "dependencies": {
     "d3-polygon": "1.0.3",
     "d3-array": "1.2.0",
-    "d3-voronoi-map": "0.0.2"
+    "d3-voronoi-map": "0.0.3"
   }
 }
