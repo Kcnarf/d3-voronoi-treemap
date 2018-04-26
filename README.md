@@ -49,7 +49,7 @@ rootNode.sum(function(d) {
   return weightAccessor(d);
 }); // assigns the adequate weight to each node of the d3-hierarchy
 
-var voronoiTreemap = d3.voronoiTreemap().clip([0, 0], [0, height], [width, height], [width, 0]); // sets the clipping polygon
+var voronoiTreemap = d3.voronoiTreemap().clip([[0, 0], [0, height], [width, height], [width, 0]]); // sets the clipping polygon
 voronoiTreemap(rootNode); // computes the weighted Voronoi tessellation of the d3-hierarchy; assigns a 'polygon' property to each node of the hierarchy
 ```
 
