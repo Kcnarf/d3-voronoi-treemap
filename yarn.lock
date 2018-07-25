@@ -74,9 +74,9 @@ d3-polygon@1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/d3-polygon/-/d3-polygon-1.0.3.tgz#16888e9026460933f2b179652ad378224d382c62"
 
-d3-voronoi-map@0.0.3:
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/d3-voronoi-map/-/d3-voronoi-map-0.0.3.tgz#7f2d60e18bfe0fa8f07dfb8c2f678b1fa6be568e"
+d3-voronoi-map@1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/d3-voronoi-map/-/d3-voronoi-map-1.1.0.tgz#3ab7a55fb488c047582511fabc991d88054bde53"
   dependencies:
     d3-array "1.2.0"
     d3-polygon "1.0.3"
