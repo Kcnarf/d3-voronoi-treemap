@@ -66,25 +66,29 @@ concat-map@0.0.1:
   version "0.0.1"
   resolved "https://registry.yarnpkg.com/concat-map/-/concat-map-0.0.1.tgz#d8a96bd77fd68df7793a73036a3ba0d5405d477b"
 
+d3-array@1.*:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/d3-array/-/d3-array-1.2.1.tgz#d1ca33de2f6ac31efadb8e050a021d7e2396d5dc"
+
 d3-array@1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/d3-array/-/d3-array-1.2.0.tgz#147d269720e174c4057a7f42be8b0f3f2ba53108"
 
-d3-polygon@1.0.3:
+d3-polygon@1.*, d3-polygon@1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/d3-polygon/-/d3-polygon-1.0.3.tgz#16888e9026460933f2b179652ad378224d382c62"
 
-d3-voronoi-map@1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/d3-voronoi-map/-/d3-voronoi-map-1.1.0.tgz#3ab7a55fb488c047582511fabc991d88054bde53"
+d3-voronoi-map@1.*:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/d3-voronoi-map/-/d3-voronoi-map-1.2.0.tgz#2f40de8efedb72373955c9197cc11ae8cd90417b"
   dependencies:
     d3-array "1.2.0"
     d3-polygon "1.0.3"
-    d3-weighted-voronoi "0.0.3"
+    d3-weighted-voronoi "1.0.0"
 
-d3-weighted-voronoi@0.0.3:
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/d3-weighted-voronoi/-/d3-weighted-voronoi-0.0.3.tgz#95bb082c0cd54ded7af6cb4f7d014b8a2a2a6d3e"
+d3-weighted-voronoi@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/d3-weighted-voronoi/-/d3-weighted-voronoi-1.0.0.tgz#03ae86bf3202d09186ab3f69a4dc975350c5962c"
   dependencies:
     d3-array "1.2.0"
     d3-polygon "1.0.3"
