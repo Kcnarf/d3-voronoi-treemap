@@ -23,7 +23,7 @@ The drawback is that the computation of a Voronoï treemap is based on a iterati
 
 ## Examples
 
-* [The Global Economy by GDP](https://bl.ocks.org/Kcnarf/fa95aa7b076f537c00aed614c29bb568), a remake of [HowMuch.net's article](https://howmuch.net/articles/the-global-economy-by-GDP)
+- [The Global Economy by GDP](https://bl.ocks.org/Kcnarf/fa95aa7b076f537c00aed614c29bb568), a remake of [HowMuch.net's article](https://howmuch.net/articles/the-global-economy-by-GDP)
 
 ## Installing
 
@@ -57,8 +57,7 @@ Then, later in your javascript, in order to draw cells:
 
 ```javascript
 var allNodes = rootNode.descendants;
-d3
-  .selectAll('path')
+d3.selectAll('path')
   .data(allNodes)
   .enter()
   .append('path')
@@ -72,14 +71,14 @@ d3
 
 ## Reference
 
-* based on [Computing Voronoï Treemaps - Faster, Simpler, and Resolution-independent ](https://www.uni-konstanz.de/mmsp/pubsys/publishedFiles/NoBr12a.pdf)
-* [https://github.com/ArlindNocaj/power-voronoi-diagram](https://github.com/ArlindNocaj/power-voronoi-diagram) for a Java implementation
+- based on [Computing Voronoï Treemaps - Faster, Simpler, and Resolution-independent ](https://www.uni-konstanz.de/mmsp/pubsys/publishedFiles/NoBr12a.pdf)
+- [https://github.com/ArlindNocaj/power-voronoi-diagram](https://github.com/ArlindNocaj/power-voronoi-diagram) for a Java implementation
 
 ## API
 
 <a name="voronoiTreemap" href="#voronoiTreemap">#</a> d3.<b>voronoiTreemap</b>()
 
-Creates a new voronoiTreemap with the default [_clip_](#voronoiTreemap_clip), [_convergenceRatio_](#voronoiTreemap_convergenceRatio), [_maxIterationCount_](#voronoiTreemap_maxIterationCount) and [_minWeightRatio_](#voronoiTreemap_minWeightRatio) configuration values.
+Creates a new voronoiTreemap with the default configuration values and functions ([_clip_](#voronoiTreemap_clip), [_convergenceRatio_](#voronoiTreemap_convergenceRatio), [_maxIterationCount_](#voronoiTreemap_maxIterationCount), [_minWeightRatio_](#voronoiTreemap_minWeightRatio) and [_prng_](#voronoiTreemap_prng)).
 
 <a name="_voronoiTreemap" href="#_voronoiTreemap">#</a> <i>voronoiTreemap</i>(<i>root</i>)
 
@@ -125,9 +124,25 @@ var minWeightRatio = 0.01; // 1% of maxWeight
 
 _minWeightRatio_ allows to mitigate flickerring behaviour (caused by too small weights), and enhances user interaction by not computing near-empty cells.
 
+<a name="voronoiTreemap_prng" href="#voronoiTreemap_prng">#</a> <i>voronoiTreemap</i>.<b>prng</b>([<i>prng</i>])
+
+If _prng_ is specified, sets the pseudorandom number generator which is used when randomness is required (i.e. when setting intial random position of data/seeds). The given pseudorandom number generator must implement the same interface as `Math.random` and must only return values in the range [0, 1). If _prng_ is not specified, returns the current _prng_ , which defaults to `Math.random`.
+
+Considering the same set of data, severall Voronoï treemap computations lead to disctinct final arrangements, due to the non-seedable `Math.random` number generator. If _prng_ is set to a _seedable_ PRNG which produces repeatable results, then several computations will produce the exact same final arrangement. This is useful if you want the same arrangement for distinct page loads/reloads. For example, using [seedrandom](https://github.com/davidbau/seedrandom):
+
+```js
+<script src="//cdnjs.cloudflare.com/ajax/libs/seedrandom/2.4.3/seedrandom.min.js"></script>
+<script>
+  var mySeededPrng = new Math.seedrandom('my seed'); // (from seedrandom's doc) Use "new" to create a local prng without altering Math.random
+  voronoiTreemap.prng(mySeededPrng);
+</script>
+```
+
+You can also take a look at [d3-random](https://github.com/d3/d3-random) for random number generator from other-than-uniform distributions.
+
 ## Dependencies
 
-* d3-voronoi-map.voronoiMap
+- d3-voronoi-map.voronoiMap
 
 ## Testing
 
