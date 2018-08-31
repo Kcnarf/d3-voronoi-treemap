@@ -78,7 +78,7 @@ d3.selectAll('path')
 
 <a name="voronoiTreemap" href="#voronoiTreemap">#</a> d3.<b>voronoiTreemap</b>()
 
-Creates a new voronoiTreemap with the default configuration values and functions ([_clip_](#voronoiTreemap_clip), [_convergenceRatio_](#voronoiTreemap_convergenceRatio), [_maxIterationCount_](#voronoiTreemap_maxIterationCount), [_minWeightRatio_](#voronoiTreemap_minWeightRatio) and [_prng_](#voronoiTreemap_prng)).
+Creates a new voronoiTreemap with the default configuration values and functions ([_clip_](#voronoiTreemap_clip), [_extent_](#voronoiTreemap_extent), [_size_](#voronoiTreemap_size), [_convergenceRatio_](#voronoiTreemap_convergenceRatio), [_maxIterationCount_](#voronoiTreemap_maxIterationCount), [_minWeightRatio_](#voronoiTreemap_minWeightRatio) and [_prng_](#voronoiTreemap_prng)).
 
 <a name="_voronoiTreemap" href="#_voronoiTreemap">#</a> <i>voronoiTreemap</i>(<i>root</i>)
 
@@ -88,10 +88,26 @@ As others d3-hierarchy layouts (rectangular treemap, or circle packing), the Vor
 
 <a name="voronoiTreemap_clip" href="#voronoiTreemap_clip">#</a> <i>voronoiTreemap</i>.<b>clip</b>([<i>clip</i>])
 
-If _clip_ is specified, sets the clipping polygon. _clip_ defines a hole-free convex polygon, and is specified as an array of 2D points \[x, y\], which must be _(i)_ open (no duplication of the first D2 point) and _(ii)_ counterclockwise (assuming the origin ⟨0,0⟩ is in the top-left corner). If _clip_ is not specified, returns the current clipping polygon, which defaults to:
+If _clip_ is specified, sets the clipping polygon, , compute the adequate [_extent_](#voronoiTreemap_extent) and [_size_](#voronoiTreemap_size), and returns this layout . _clip_ defines a hole-free convex polygon, and is specified as an array of 2D points \[x, y\], which must be _(i)_ open (no duplication of the first D2 point) and _(ii)_ counterclockwise (assuming the origin ⟨0,0⟩ is in the top-left corner). If _clip_ is not specified, returns the current clipping polygon, which defaults to:
 
 ```js
 [[0, 0], [0, 1], [1, 1], [1, 0]];
+```
+
+<a name="voronoiTreemap_extent" href="#voronoiTreemap_extent">#</a> <i>voronoiTreemap</i>.<b>extent</b>([<i>extent</i>])
+
+If _extent_ is specified, it is a convenient way to define the clipping polygon as a rectangle. It sets the extent, computes the adequate [_clip_](#voronoiTreemap_clip)ping polygon and [_size_](#voronoiTreemap_size), and returns this layout. _extent_ must be a two-element array of 2D points \[x, y\], which defines the clipping polygon as a rectangle with the top-left and bottom-right corners respectively set to the first and second points (assuming the origin ⟨0,0⟩ is in the top-left corner on the screen). If _extent_ is not specified, returns the current extent, which is `[[minX, minY], [maxX, maxY]]` of current clipping polygon, and which defaults to:
+
+```js
+[[0, 0], [1, 1]];
+```
+
+<a name="voronoiTreemap_size" href="#voronoiTreemap_size">#</a> <i>voronoiTreemap</i>.<b>size</b>([<i>size</i>])
+
+If _size_ is specified, it is a convenient way to define the clipping polygon as a rectangle. It sets the size, computes the adequate [_clip_](#voronoiTreemap_clip)ping polygon and [_extent_](#voronoiTreemap_extent), and returns this layout. _size_ must be a two-element array of numbers `[width, height]`, which defines the clipping polygon as a rectangle with the top-left corner set to `[0, 0]` and the bottom-right corner set to `[width, height]` (assuming the origin ⟨0,0⟩ is in the top-left corner on the screen). If _size_ is not specified, returns the current size, which is `[maxX-minX, maxY-minY]` of current clipping polygon, and which defaults to:
+
+```js
+[1, 1];
 ```
 
 <a name="voronoiTreemap_convergenceRatio" href="#voronoiTreemap_convergenceRatio">#</a> <i>voronoiTreemap</i>.<b>convergenceRatio</b>([<i>convergenceRatio</i>])

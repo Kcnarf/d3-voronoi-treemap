@@ -17,7 +17,12 @@ export function voronoiTreemap() {
     [0, 1],
     [1, 1],
     [1, 0]
-  ] // clipping polygon
+  ]; // clipping polygon
+  var extent = [
+    [0, 0],
+    [1, 1]
+  ]; // extent of the clipping polygon
+  var size = [1, 1]; // [width, height] of the clipping polygon
   var convergenceRatio = DEFAULT_CONVERGENCE_RATIO; // targeted allowed error ratio; default 0.01 stops computation when cell areas error <= 1% clipping polygon's area
   var maxIterationCount = DEFAULT_MAX_ITERATION_COUNT; // maximum allowed iteration; stops computation even if convergence is not reached; use a large amount for a sole converge-based computation stop
   var minWeightRatio = DEFAULT_MIN_WEIGHT_RATIO; // used to compute the minimum allowed weight; default 0.01 means 1% of max weight; handle near-zero weights, and leaves enought space for cell hovering
@@ -76,10 +81,40 @@ export function voronoiTreemap() {
       return clip;
     }
 
-    //begin: use voronoiMap.clip() to handle borderline input (non-counterclockwise, non-convex, ...)
+    //begin: use voronoiMap.clip() to handle clkip/extent/size computation and borderline input (non-counterclockwise, non-convex, ...)
     _voronoiMap.clip(_);
     //end: use voronoiMap.clip() to handle
     clip = _voronoiMap.clip();
+    extent = _voronoiMap.extent();
+    size = _voronoiMap.size();
+    return _voronoiTreemap;
+  };
+
+  _voronoiTreemap.extent = function (_) {
+    if (!arguments.length) {
+      return extent;
+    }
+
+    //begin: use voronoiMap.extent() to handle clkip/extent/size computation
+    _voronoiMap.extent(_);
+    //end: use voronoiMap.clip() to handle
+    clip = _voronoiMap.clip();
+    extent = _voronoiMap.extent();
+    size = _voronoiMap.size();
+    return _voronoiTreemap;
+  };
+
+  _voronoiTreemap.size = function (_) {
+    if (!arguments.length) {
+      return size;
+    }
+
+    //begin: use voronoiMap.size()
+    _voronoiMap.size(_);
+    //end: use voronoiMap.clip() to handle clip/extent/size computation
+    clip = _voronoiMap.clip();
+    extent = _voronoiMap.extent();
+    size = _voronoiMap.size();
     return _voronoiTreemap;
   };
 

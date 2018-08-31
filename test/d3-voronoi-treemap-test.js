@@ -16,25 +16,76 @@ tape("voronoiTreemap(...) should set the expected defaults", function (test) {
     [1, 1],
     [1, 0]
   ]);
+  test.deepEqual(voronoiTreemap.extent(), [
+    [0, 0],
+    [1, 1]
+  ]);
+  test.deepEqual(voronoiTreemap.size(), [1, 1]);
   test.end();
 });
 
-tape("voronoiTreemap.clip(...) should set the adequate convex, hole-free, counterclockwise clipping polygon", function (test) {
+tape("voronoiTreemap.clip(...) should set the adequate clipping polygon (convex, hole-free, counterclockwise), extent and size", function (test) {
   var voronoiTreemap = d3VoronoiTreemap.voronoiTreemap(),
     newClip = [
-      [0, 0],
-      [0, 1],
-      [1, 0],
-      [1, 1]
+      [1, 1],
+      [1, 2],
+      [3, 1],
+      [3, 2]
     ]; //self-intersecting polygon
 
   test.equal(voronoiTreemap.clip(newClip), voronoiTreemap);
   test.deepEqual(voronoiTreemap.clip(), [
+    [3, 2],
+    [3, 1],
     [1, 1],
-    [1, 0],
-    [0, 0],
-    [0, 1]
+    [1, 2]
   ]);
+  test.deepEqual(voronoiTreemap.extent(), [
+    [1, 1],
+    [3, 2]
+  ]);
+  test.deepEqual(voronoiTreemap.size(), [2, 1]);
+  test.end();
+});
+
+tape("voronoiTreemap.extent(...) should set the adequate clipping polygon (convex, hole-free, counterclockwise), extent and size", function (test) {
+  var voronoiTreemap = d3VoronoiTreemap.voronoiTreemap(),
+    newExtent = [
+      [1, 1],
+      [3, 2]
+    ];
+
+  test.equal(voronoiTreemap.extent(newExtent), voronoiTreemap);
+  test.deepEqual(voronoiTreemap.clip(), [
+    [1, 1],
+    [1, 2],
+    [3, 2],
+    [3, 1]
+  ]);
+  test.deepEqual(voronoiTreemap.extent(), [
+    [1, 1],
+    [3, 2]
+  ]);
+  test.deepEqual(voronoiTreemap.size(), [2, 1]);
+  test.end();
+});
+
+tape("voronoiTreemap.size(...) should set the adequate clipping polygon (convex, hole-free, counterclockwise), extent and size", function (test) {
+  var voronoiTreemap = d3VoronoiTreemap.voronoiTreemap(),
+    newSize = [2, 1];
+
+  test.equal(voronoiTreemap.size(newSize), voronoiTreemap);
+  test.deepEqual(voronoiTreemap.clip(), [
+    [0, 0],
+    [0, 1],
+    [2, 1],
+    [2, 0]
+  ]);
+  test.deepEqual(voronoiTreemap.extent(), [
+    [0, 0],
+    [2, 1]
+  ]);
+  test.deepEqual(voronoiTreemap.size(), [2, 1]);
   test.end();
 });
 
