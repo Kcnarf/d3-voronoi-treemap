@@ -168,6 +168,11 @@ You can also take a look at [d3-random](https://github.com/d3/d3-random) for ran
 
 - d3-voronoi-map.voronoiMap
 
+## Semantic Versioning
+
+d3-voronoi-treemap attempts to follow [semantic versioning](https://semver.org) and
+bump major version only when backwards incompatible changes are released.
+
 ## Testing
 
 In order to test the code
