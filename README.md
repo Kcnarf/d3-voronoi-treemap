@@ -23,7 +23,12 @@ The drawback is that the computation of a Voronoï treemap is based on a iterati
 
 ## Examples
 
-- [The Global Economy by GDP](https://bl.ocks.org/Kcnarf/fa95aa7b076f537c00aed614c29bb568), a remake of [HowMuch.net's article](https://howmuch.net/articles/the-global-economy-by-GDP)
+- Real life use cases
+  - [https://unearthed.greenpeace.org/2020/02/20/pesticides-croplife-hazardous-bayer-syngenta-health-bees/] by Nadieh Bremer for Greenpeace (more details at https://www.visualcinnamon.com/portfolio/highly-hazardous-pesticides)
+  - [Brussels. A lovely Melting-Pot.](http://brussels-diversity.jetpack.ai/) by Karim Douieb, with a really great animation that clearly and easily explains to the reader how to read/understand the Voronoï treemap
+  - [Earth's Land Surface](https://public.tableau.com/profile/luca7027#!/vizhome/EarthsLandSurfaceAVoronoiWorld/EarthsLandSurfaceAVoronoiWorld) by Luca Urzì in Tableau
+- Examples with available code
+  - [The Global Economy by GDP](https://bl.ocks.org/Kcnarf/fa95aa7b076f537c00aed614c29bb568), a remake of [HowMuch.net's article](https://howmuch.net/articles/the-global-economy-by-GDP)
 
 ## Installing
 
@@ -56,7 +61,12 @@ function weightAccessor(d) {
 var rootNode = d3.hierarchy(nestedData); // a d3-hierarchy of your nested data
 rootNode.sum(weightAccessor); // assigns the adequate weight to each node of the d3-hierarchy
 
-var voronoiTreemap = d3.voronoiTreemap().clip([[0, 0], [0, height], [width, height], [width, 0]]); // sets the clipping polygon
+var voronoiTreemap = d3.voronoiTreemap().clip([
+  [0, 0],
+  [0, height],
+  [width, height],
+  [width, 0],
+]); // sets the clipping polygon
 voronoiTreemap(rootNode); // computes the weighted Voronoi tessellation of the d3-hierarchy; assigns a 'polygon' property to each node of the hierarchy
 ```
 
@@ -68,11 +78,11 @@ d3.selectAll('path')
   .data(allNodes)
   .enter()
   .append('path')
-  .attr('d', function(d) {
+  .attr('d', function (d) {
     // d is a node
     return d3.line()(d.polygon) + 'z'; // d.polygon is the computed Voronoï cell encoding the relative weight of your underlying original data
   })
-  .style('fill', function(d) {
+  .style('fill', function (d) {
     return fillScale(d.data); // d.data is your original data
   });
 ```
@@ -99,7 +109,12 @@ As others d3-hierarchy layouts (rectangular treemap, or circle packing), the Vor
 If _clip_ is specified, sets the clipping polygon, , compute the adequate [_extent_](#voronoiTreemap_extent) and [_size_](#voronoiTreemap_size), and returns this layout . _clip_ defines a hole-free convex polygon, and is specified as an array of 2D points \[x, y\], which must be _(i)_ open (no duplication of the first D2 point) and _(ii)_ counterclockwise (assuming the origin ⟨0,0⟩ is in the top-left corner). If _clip_ is not specified, returns the current clipping polygon, which defaults to:
 
 ```js
-[[0, 0], [0, 1], [1, 1], [1, 0]];
+[
+  [0, 0],
+  [0, 1],
+  [1, 1],
+  [1, 0],
+];
 ```
 
 <a name="voronoiTreemap_extent" href="#voronoiTreemap_extent">#</a> <i>voronoiTreemap</i>.<b>extent</b>([<i>extent</i>])
@@ -107,7 +122,10 @@ If _clip_ is specified, sets the clipping polygon, , compute the adequate [_exte
 If _extent_ is specified, it is a convenient way to define the clipping polygon as a rectangle. It sets the extent, computes the adequate [_clip_](#voronoiTreemap_clip)ping polygon and [_size_](#voronoiTreemap_size), and returns this layout. _extent_ must be a two-element array of 2D points \[x, y\], which defines the clipping polygon as a rectangle with the top-left and bottom-right corners respectively set to the first and second points (assuming the origin ⟨0,0⟩ is in the top-left corner on the screen). If _extent_ is not specified, returns the current extent, which is `[[minX, minY], [maxX, maxY]]` of current clipping polygon, and which defaults to:
 
 ```js
-[[0, 0], [1, 1]];
+[
+  [0, 0],
+  [1, 1],
+];
 ```
 
 <a name="voronoiTreemap_size" href="#voronoiTreemap_size">#</a> <i>voronoiTreemap</i>.<b>size</b>([<i>size</i>])

@@ -81,9 +81,9 @@ export function voronoiTreemap() {
       return clip;
     }
 
-    //begin: use voronoiMap.clip() to handle clkip/extent/size computation and borderline input (non-counterclockwise, non-convex, ...)
+    //begin: use voronoiMap.clip() to handle clip/extent/size computation and borderline input (non-counterclockwise, non-convex, ...)
     _voronoiMap.clip(_);
-    //end: use voronoiMap.clip() to handle
+    //end: use voronoiMap.clip() to handle clip/extent/size computation
     clip = _voronoiMap.clip();
     extent = _voronoiMap.extent();
     size = _voronoiMap.size();
@@ -95,9 +95,9 @@ export function voronoiTreemap() {
       return extent;
     }
 
-    //begin: use voronoiMap.extent() to handle clkip/extent/size computation
+    //begin: use voronoiMap.extent() to handle clip/extent/size computation
     _voronoiMap.extent(_);
-    //end: use voronoiMap.clip() to handle
+    //end: use voronoiMap.clip() to handle clip/extent/size computation
     clip = _voronoiMap.clip();
     extent = _voronoiMap.extent();
     size = _voronoiMap.size();
@@ -109,7 +109,7 @@ export function voronoiTreemap() {
       return size;
     }
 
-    //begin: use voronoiMap.size()
+    //begin: use voronoiMap.size() to handle clip/extent/size computation
     _voronoiMap.size(_);
     //end: use voronoiMap.clip() to handle clip/extent/size computation
     clip = _voronoiMap.clip();
