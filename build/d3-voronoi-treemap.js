@@ -2,10 +2,11 @@
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('d3-voronoi-map')) :
   typeof define === 'function' && define.amd ? define(['exports', 'd3-voronoi-map'], factory) :
   (factory((global.d3 = global.d3 || {}),global.d3));
-}(this, function (exports,d3VoronoiMap) { 'use strict';
+}(this, function (exports,voronoiMap) { 'use strict';
+
+  voronoiMap = 'default' in voronoiMap ? voronoiMap['default'] : voronoiMap;
 
   function voronoiTreemap() {
-
     //begin: constants
     var DEFAULT_CONVERGENCE_RATIO = 0.01;
     var DEFAULT_MAX_ITERATION_COUNT = 50;
@@ -18,11 +19,11 @@
       [0, 0],
       [0, 1],
       [1, 1],
-      [1, 0]
+      [1, 0],
     ]; // clipping polygon
     var extent = [
       [0, 0],
-      [1, 1]
+      [1, 1],
     ]; // extent of the clipping polygon
     var size = [1, 1]; // [width, height] of the clipping polygon
     var convergenceRatio = DEFAULT_CONVERGENCE_RATIO; // targeted allowed error ratio; default 0.01 stops computation when cell areas error <= 1% clipping polygon's area
@@ -31,25 +32,24 @@
     var prng = DEFAULT_PRNG; // pseudorandom number generator
 
     //begin: internals
-    var _voronoiMap = d3VoronoiMap.voronoiMap();
+    var unrelevantButNeedeData = [
+      {
+        weight: 1,
+      },
+      {
+        weight: 1,
+      },
+    ];
+    var _convenientReusableVoronoiMap = voronoiMap.voronoiMapSimulation(unrelevantButNeedeData).stop();
     //end: internals
-
 
     ///////////////////////
     ///////// API /////////
     ///////////////////////
 
     function _voronoiTreemap(rootNode) {
-      _voronoiMap.weight(function (d) {
-          return d.value;
-        })
-        .convergenceRatio(convergenceRatio)
-        .maxIterationCount(maxIterationCount)
-        .minWeightRatio(minWeightRatio)
-        .prng(prng);
-
       recurse(clip, rootNode);
-    };
+    }
 
     _voronoiTreemap.convergenceRatio = function (_) {
       if (!arguments.length) {
@@ -83,12 +83,12 @@
         return clip;
       }
 
-      //begin: use voronoiMap.clip() to handle clkip/extent/size computation and borderline input (non-counterclockwise, non-convex, ...)
-      _voronoiMap.clip(_);
-      //end: use voronoiMap.clip() to handle
-      clip = _voronoiMap.clip();
-      extent = _voronoiMap.extent();
-      size = _voronoiMap.size();
+      //begin: use voronoiMap.clip() to handle clip/extent/size computation and borderline input (non-counterclockwise, non-convex, ...)
+      _convenientReusableVoronoiMap.clip(_);
+      //end: use voronoiMap.clip() to handle clip/extent/size computation
+      clip = _convenientReusableVoronoiMap.clip();
+      extent = _convenientReusableVoronoiMap.extent();
+      size = _convenientReusableVoronoiMap.size();
       return _voronoiTreemap;
     };
 
@@ -97,12 +97,12 @@
         return extent;
       }
 
-      //begin: use voronoiMap.extent() to handle clkip/extent/size computation
-      _voronoiMap.extent(_);
-      //end: use voronoiMap.clip() to handle
-      clip = _voronoiMap.clip();
-      extent = _voronoiMap.extent();
-      size = _voronoiMap.size();
+      //begin: use voronoiMap.extent() to handle clip/extent/size computation
+      _convenientReusableVoronoiMap.extent(_);
+      //end: use voronoiMap.clip() to handle clip/extent/size computation
+      clip = _convenientReusableVoronoiMap.clip();
+      extent = _convenientReusableVoronoiMap.extent();
+      size = _convenientReusableVoronoiMap.size();
       return _voronoiTreemap;
     };
 
@@ -111,12 +111,12 @@
         return size;
       }
 
-      //begin: use voronoiMap.size()
-      _voronoiMap.size(_);
+      //begin: use voronoiMap.size() to handle clip/extent/size computation
+      _convenientReusableVoronoiMap.size(_);
       //end: use voronoiMap.clip() to handle clip/extent/size computation
-      clip = _voronoiMap.clip();
-      extent = _voronoiMap.extent();
-      size = _voronoiMap.size();
+      clip = _convenientReusableVoronoiMap.clip();
+      extent = _convenientReusableVoronoiMap.extent();
+      size = _convenientReusableVoronoiMap.size();
       return _voronoiTreemap;
     };
 
@@ -134,21 +134,41 @@
     ///////////////////////
 
     function recurse(clippingPolygon, node) {
-      var voronoiMapRes;
+      var simulation;
 
       //assign polygon to node
       node.polygon = clippingPolygon;
 
       if (node.height != 0) {
         //compute one-level Voronoi map of children
-        voronoiMapRes = _voronoiMap.clip(clippingPolygon)(node.children);
+        simulation = voronoiMap
+          .voronoiMapSimulation(node.children)
+          .clip(clippingPolygon)
+          .weight(function (d) {
+            return d.value;
+          })
+          .convergenceRatio(convergenceRatio)
+          .maxIterationCount(maxIterationCount)
+          .minWeightRatio(minWeightRatio)
+          .prng(prng)
+          .stop();
+
+        var state = simulation.state(); // retrieve the Voronoï map simulation's state
+
+        //begin: manually launch each iteration until the Voronoï map simulation ends
+        while (!state.ended) {
+          simulation.tick();
+          state = simulation.state();
+        }
+        //end: manually launch each iteration until the Voronoï map simulation ends
+
         //begin: recurse on children
-        voronoiMapRes.polygons.forEach(function (cp) {
+        state.polygons.forEach(function (cp) {
           recurse(cp, cp.site.originalObject.data.originalData);
-        })
+        });
         //end: recurse on children
       }
-    };
+    }
 
     return _voronoiTreemap;
   }

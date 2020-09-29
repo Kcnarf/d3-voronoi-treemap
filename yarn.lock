@@ -70,28 +70,38 @@ d3-array@1.*:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/d3-array/-/d3-array-1.2.1.tgz#d1ca33de2f6ac31efadb8e050a021d7e2396d5dc"
 
-d3-array@1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/d3-array/-/d3-array-1.2.0.tgz#147d269720e174c4057a7f42be8b0f3f2ba53108"
+d3-dispatch@1.*:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/d3-dispatch/-/d3-dispatch-1.0.6.tgz#00d37bcee4dd8cd97729dd893a0ac29caaba5d58"
+  integrity sha512-fVjoElzjhCEy+Hbn8KygnmMS7Or0a9sI2UzGwoB7cCtvI1XpVN9GpoYlnb3xt2YV66oXYb1fLJ8GMvP4hdU1RA==
 
-d3-polygon@1.*, d3-polygon@1.0.3:
+d3-polygon@1.*:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/d3-polygon/-/d3-polygon-1.0.3.tgz#16888e9026460933f2b179652ad378224d382c62"
 
-"d3-voronoi-map@>=1.2.0 1.*":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/d3-voronoi-map/-/d3-voronoi-map-1.2.0.tgz#2f40de8efedb72373955c9197cc11ae8cd90417b"
-  dependencies:
-    d3-array "1.2.0"
-    d3-polygon "1.0.3"
-    d3-weighted-voronoi "1.0.0"
+d3-timer@1.*:
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/d3-timer/-/d3-timer-1.0.10.tgz#dfe76b8a91748831b13b6d9c793ffbd508dd9de5"
+  integrity sha512-B1JDm0XDaQC+uvo4DT79H0XmBskgS3l6Ve+1SBCfxgmtIb1AVrPIoqd+nPSv+loMX8szQ0sVUhGngL7D5QPiXw==
 
-d3-weighted-voronoi@1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/d3-weighted-voronoi/-/d3-weighted-voronoi-1.0.0.tgz#03ae86bf3202d09186ab3f69a4dc975350c5962c"
+d3-voronoi-map@2.*:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/d3-voronoi-map/-/d3-voronoi-map-2.0.1.tgz#faa484872cddc6b45c2c8b56b38c027fce2aade9"
+  integrity sha512-KXVqLXZbiCse7vhCeLj0ecK8KtDmSD7Ykjs5c06GJkzb44GhrQcke0T1+tiMBIowwYZthH2ZdgHdDtlUAvDNWw==
   dependencies:
-    d3-array "1.2.0"
-    d3-polygon "1.0.3"
+    d3-array "1.*"
+    d3-dispatch "1.*"
+    d3-polygon "1.*"
+    d3-timer "1.*"
+    d3-weighted-voronoi "1.*"
+
+d3-weighted-voronoi@1.*:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/d3-weighted-voronoi/-/d3-weighted-voronoi-1.0.1.tgz#548a4b9937f3d12ce8fc65f5b1ddb928675c6626"
+  integrity sha512-ILhnzujabeOSsVB1yjwBPYuvQksK8yGQZTpDKiccmu0voxSciP1Es9BOT5SRKaK/B3pkqiKq/QNk+3MlN9nYtA==
+  dependencies:
+    d3-array "1.*"
+    d3-polygon "1.*"
 
 decamelize@^1.0.0:
   version "1.2.0"
