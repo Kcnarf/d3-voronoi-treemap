@@ -9,7 +9,7 @@ Because a picture is worth a thousand words:
 ![diamond](./img/diamond.png)
 ![circle](./img/circle.png)
 
-Available only for **d3 v4** and **d3 v5**.
+Available only for **d3 v4**, **d3 v5** and **d3 v6**.
 
 If you're interested on one-level map, take a look at the [d3-voronoi-map](https://github.com/Kcnarf/d3-voronoi-map) plugin, which may be simpler to use (no need of a d3-hierarchy).
 
@@ -35,7 +35,7 @@ The drawback is that the computation of a Voronoï treemap is based on a iterati
 If you use NPM, `npm install d3-voronoi-treemap`. Otherwise, load `https://rawcdn.githack.com/Kcnarf/d3-voronoi-treemap/v1.1.0/build/d3-voronoi-treemap.js` (or its `d3-voronoi-treemap.min.js` version) to make it available in AMD, CommonJS, or vanilla environments. In vanilla, you must load the [d3-weighted-voronoi](https://github.com/Kcnarf/d3-weighted-voronoi) and [d3-voronoi-map](https://github.com/Kcnarf/d3-voronoi-map) plugins prioir to this one, and a d3 global is exported:
 
 ```html
-<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/d3.v6.min.js"></script>
 <script src="https://rawcdn.githack.com/Kcnarf/d3-weighted-voronoi/v1.0.1/build/d3-weighted-voronoi.js"></script>
 <script src="https://rawcdn.githack.com/Kcnarf/d3-voronoi-map/v1.2.0/build/d3-voronoi-map.js"></script>
 <script src="https://rawcdn.githack.com/Kcnarf/d3-voronoi-treemap/v1.1.0/build/d3-voronoi-treemap.js"></script>
