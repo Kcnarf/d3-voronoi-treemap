@@ -24,4 +24,4 @@ d3-voronoi-treemap attempts to follow [semantic versioning](https://semver.org) 
 5. `git tag -a vX.X.X`
 6. `git push --tags`
 7. `npm publish`
-8. go to github repo and make the tag a release (cf. last lines of [Let's make a D3 plugin](https://bost.ocks.org/mike/d3-plugin/#publish))
+8. go to [Github's repositoty tag page](https://github.com/Kcnarf/d3-voronoi-treemap/tags) and make the new tag a new release (cf. last lines of [Let's make a D3 plugin](https://bost.ocks.org/mike/d3-plugin/#publish))
