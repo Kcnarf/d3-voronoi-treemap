@@ -141,7 +141,7 @@ If _size_ is specified, it is a convenient way to define the clipping polygon as
 If _convergenceRatio_ is specified, sets the convergence ratio, which stops computation when (cell area errors / ([_clip_](#voronoiTreemap_clip)-ping polygon area) <= _convergenceRatio_. If _convergenceRatio_ is not specified, returns the current _convergenceRatio_ , which defaults to:
 
 ```js
-var convergenceRation = 0.01; // stops computation when cell area error <= 1% clipping polygon's area
+var convergenceRatio = 0.01; // stops computation when cell area error <= 1% clipping polygon's area
 ```
 
 The smaller the _convergenceRatio_, the more representative is the treemap, the longer the computation takes time.
