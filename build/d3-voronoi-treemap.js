@@ -2,9 +2,7 @@
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('d3-voronoi-map')) :
   typeof define === 'function' && define.amd ? define(['exports', 'd3-voronoi-map'], factory) :
   (factory((global.d3 = global.d3 || {}),global.d3));
-}(this, function (exports,voronoiMap) { 'use strict';
-
-  voronoiMap = 'default' in voronoiMap ? voronoiMap['default'] : voronoiMap;
+}(this, function (exports,d3VoronoiMap) { 'use strict';
 
   function voronoiTreemap() {
     //begin: constants
@@ -40,7 +38,7 @@
         weight: 1,
       },
     ];
-    var _convenientReusableVoronoiMap = voronoiMap.voronoiMapSimulation(unrelevantButNeedeData).stop();
+    var _convenientReusableVoronoiMapSimulation = d3VoronoiMap.voronoiMapSimulation(unrelevantButNeedeData).stop();
     //end: internals
 
     ///////////////////////
@@ -84,11 +82,11 @@
       }
 
       //begin: use voronoiMap.clip() to handle clip/extent/size computation and borderline input (non-counterclockwise, non-convex, ...)
-      _convenientReusableVoronoiMap.clip(_);
+      _convenientReusableVoronoiMapSimulation.clip(_);
       //end: use voronoiMap.clip() to handle clip/extent/size computation
-      clip = _convenientReusableVoronoiMap.clip();
-      extent = _convenientReusableVoronoiMap.extent();
-      size = _convenientReusableVoronoiMap.size();
+      clip = _convenientReusableVoronoiMapSimulation.clip();
+      extent = _convenientReusableVoronoiMapSimulation.extent();
+      size = _convenientReusableVoronoiMapSimulation.size();
       return _voronoiTreemap;
     };
 
@@ -98,11 +96,11 @@
       }
 
       //begin: use voronoiMap.extent() to handle clip/extent/size computation
-      _convenientReusableVoronoiMap.extent(_);
+      _convenientReusableVoronoiMapSimulation.extent(_);
       //end: use voronoiMap.clip() to handle clip/extent/size computation
-      clip = _convenientReusableVoronoiMap.clip();
-      extent = _convenientReusableVoronoiMap.extent();
-      size = _convenientReusableVoronoiMap.size();
+      clip = _convenientReusableVoronoiMapSimulation.clip();
+      extent = _convenientReusableVoronoiMapSimulation.extent();
+      size = _convenientReusableVoronoiMapSimulation.size();
       return _voronoiTreemap;
     };
 
@@ -112,11 +110,11 @@
       }
 
       //begin: use voronoiMap.size() to handle clip/extent/size computation
-      _convenientReusableVoronoiMap.size(_);
+      _convenientReusableVoronoiMapSimulation.size(_);
       //end: use voronoiMap.clip() to handle clip/extent/size computation
-      clip = _convenientReusableVoronoiMap.clip();
-      extent = _convenientReusableVoronoiMap.extent();
-      size = _convenientReusableVoronoiMap.size();
+      clip = _convenientReusableVoronoiMapSimulation.clip();
+      extent = _convenientReusableVoronoiMapSimulation.extent();
+      size = _convenientReusableVoronoiMapSimulation.size();
       return _voronoiTreemap;
     };
 
@@ -141,8 +139,7 @@
 
       if (node.height != 0) {
         //compute one-level Voronoi map of children
-        simulation = voronoiMap
-          .voronoiMapSimulation(node.children)
+        simulation = d3VoronoiMap.voronoiMapSimulation(node.children)
           .clip(clippingPolygon)
           .weight(function (d) {
             return d.value;

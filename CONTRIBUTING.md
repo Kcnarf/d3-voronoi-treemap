@@ -17,8 +17,8 @@ d3-weighted-voronoi follows Mike Bostocks's [Let's make a D3 plugin](https://bos
 
 d3-voronoi-treemap attempts to follow [semantic versioning](https://semver.org) and bump major version only when backwards incompatible changes are released.
 
-1. change version number in package.json
-2. change version number in README.md, section _installing_
+1. change version number in package.json (1 occurence)
+2. change version number in README.md, section _installing_ (2 occurences)
 3. `git commit`
 4. `git push`
 5. `git tag -a vX.X.X`
