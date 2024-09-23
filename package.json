@@ -30,7 +30,7 @@
     "prepublish": "zip -j build/d3-voronoi-treemap.zip -- LICENSE README.md build/d3-voronoi-treemap.js build/d3-voronoi-treemap.min.js"
   },
   "devDependencies": {
-    "rollup": "0.27",
+    "rollup": "3.29",
     "tape": "4",
     "uglify-js": "~>2.6.0"
   },
